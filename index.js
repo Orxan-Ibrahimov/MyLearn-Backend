@@ -7,6 +7,7 @@ const API_URL = process.env.API_URL;
 const bodyParser = require('body-parser');
 
 const citizensRouter = require('./routes/citizenship');
+const ratingDetailsRouter = require('./routes/rating-details');
 
 app.use(morgan('tiny'))
 app.use(bodyParser.json());
@@ -14,6 +15,7 @@ app.use('/public/uploads', express.static(__dirname + '/public/uploads'));
 
 // Routes
 app.use(`${API_URL}/citizenships`, citizensRouter);
+app.use(`${API_URL}/ratingDetails`, ratingDetailsRouter);
 
 mongoose
   .connect(process.env.DATABASE_CONNECTION, {
