@@ -26,18 +26,6 @@ router.get("/:rid", async (req, res) => {
   res.status(200).send(ratingDetails);
 });
 
-// rating details DELETE request for to remove any rating details for ID
-router.delete("/:rid", async (req, res) => {
-  const ratingDetails = await RatingDetails.findByIdAndDelete(req.params.rid);
-
-  if (!ratingDetails)
-    return res
-      .status(404)
-      .json({ success: false, message: "The ratingDetails can not removed!" });
-
-  res.status(200).send(ratingDetails);
-});
-
 // rating details POST request for to get a new rating details
 router.post("/", async (req, res) => {
   let ratingDetails = new RatingDetails({
@@ -55,6 +43,39 @@ router.post("/", async (req, res) => {
       .json({ success: false, message: "ratingDetails can not be added!" });
 
   res.status(201).send(ratingDetails);
+});
+
+// rating details DELETE request for to remove any rating details for ID
+router.put("/:rid", async (req, res) => {
+  const ratingDetails = await RatingDetails.findByIdAndUpdate(
+    req.params.rid,
+    {
+      point: req.body.point,
+      colour: req.body.colour,
+      idea: req.body.idea,
+      actionDate: req.body.actionDate,
+    },
+    { new: true }
+  );
+
+  if (!ratingDetails)
+    return res
+      .status(404)
+      .json({ success: false, message: "The ratingDetails can not updated!" });
+
+  res.status(200).send(ratingDetails);
+});
+
+// rating details DELETE request for to remove any rating details for ID
+router.delete("/:rid", async (req, res) => {
+  const ratingDetails = await RatingDetails.findByIdAndDelete(req.params.rid);
+
+  if (!ratingDetails)
+    return res
+      .status(404)
+      .json({ success: false, message: "The ratingDetails can not removed!" });
+
+  res.status(200).send(ratingDetails);
 });
 
 module.exports = router;
