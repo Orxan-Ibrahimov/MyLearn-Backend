@@ -1,31 +1,30 @@
 const express = require("express");
 const { Citizenship } = require("../models/citizenship");
 const router = express.Router();
-const multer = require('multer');
+const multer = require("multer");
+const fs = require("fs");
 
 const FILE_TYPES = {
-  'image/png': 'png',
-  'image/jpg': 'jpg',
-  'image/jpeg': 'jpeg',
-}
-
+  "image/png": "png",
+  "image/jpg": "jpg",
+  "image/jpeg": "jpeg",
+};
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    let typeError = new Error({message: "image type was not valid!"});
+    let typeError = new Error({ message: "image type was not valid!" });
     const isValid = FILE_TYPES[file.mimetype];
-    if(isValid) typeError = null;
-    cb(typeError, 'public/uploads');
+    if (isValid) typeError = null;
+    cb(typeError, "public/uploads");
   },
   filename: function (req, file, cb) {
-    const filename = file.fieldname.replace(' ', '-');
+    const filename = file.fieldname.replace(" ", "-");
     const extension = FILE_TYPES[file.mimetype];
-    cb(null, `myimagefor${filename}${Date.now()}.${extension}`)
-  }
-})
+    cb(null, `myimagefor${filename}${Date.now()}.${extension}`);
+  },
+});
 
-const uploadOptions = multer({ storage: storage })
-
+const uploadOptions = multer({ storage: storage });
 
 // citizens get request for to get Citizens list
 router.get("/", async (req, res) => {
@@ -52,11 +51,14 @@ router.get("/:cid", async (req, res) => {
 });
 
 // citizens POST request for to create a citizen
-router.post("/", uploadOptions.single('flag'), async (req, res) => {
+router.post("/", uploadOptions.single("flag"), async (req, res) => {
   const file = req.file;
-  if(!file) return res.status(500).send({success: false, message: "image was not sended!"})
+  if (!file)
+    return res
+      .status(500)
+      .send({ success: false, message: "image was not sended!" });
 
-  const basePath = `${req.protocol}://${req.get('host')}/public/uploads`;
+  const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
   let cs = new Citizenship({
     citizenship: req.body.citizenship,
     flag: `${basePath}${file.filename}`,
@@ -74,19 +76,25 @@ router.post("/", uploadOptions.single('flag'), async (req, res) => {
 });
 
 // citizens PUT request for to update the citizen
-router.put("/:cid", uploadOptions.single('flag'), async (req, res) => {
+router.put("/:cid", uploadOptions.single("flag"), async (req, res) => {
   const oldCitizenship = await Citizenship.findById(req.params.cid);
-  if(!oldCitizenship) return res.status(500).json({success:false, message: "product was not found in database"});
+  if (!oldCitizenship)
+    return res
+      .status(500)
+      .json({ success: false, message: "product was not found in database" });
 
   const file = req.file;
-  let flagImage = oldCitizenship.flag;  
-  if(file) flagImage = `${req.protocol}://${req.get('host')}/public/images/flags/${file.filename}`;
+  let flagImage = oldCitizenship.flag;
+  if (file)
+    flagImage = `${req.protocol}://${req.get("host")}/public/uploads/${
+      file.filename
+    }`;
 
   let citizenship = await Citizenship.findByIdAndUpdate(
     req.params.cid,
     {
       citizenship: req.body.citizenship,
-      flag: flagImage
+      flag: flagImage,
     },
     {
       new: true,
@@ -106,18 +114,24 @@ router.put("/:cid", uploadOptions.single('flag'), async (req, res) => {
 // citizens DELETE request for to remove the Citizen for id
 router.delete("/:cid", async (req, res) => {
   const citizenship = Citizenship.findByIdAndDelete(req.params.cid)
-  .then((cs) => {
-    if (!cs)
-    return res
-      .status(404)
-      .json({ success: false, message: "citizenship can not be deleted!" });
+    .then((cs) => {
+      let flagImage = cs.flag.split("/");
+      flagImage = flagImage[flagImage.length - 1];
+      if (!cs)
+        return res
+          .status(404)
+          .json({ success: false, message: "citizenship can not be deleted!" });
+
+      fs.unlink(`./public/uploads/${flagImage}`, (err) => {
+        if (err) throw err;
+        console.log("path/file.txt was deleted");
+      });
 
       res.send(citizenship);
-  })
-  .catch((err) => {
-    res.status(500).json({success:false, message: err.message});
-  });
+    })
+    .catch((err) => {
+      res.status(500).json({ success: false, message: err.message });
+    });
 });
-
 
 module.exports = router;
