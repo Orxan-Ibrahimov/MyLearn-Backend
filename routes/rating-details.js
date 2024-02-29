@@ -26,6 +26,13 @@ router.get("/:rid", async (req, res) => {
   res.status(200).send(ratingDetails);
 });
 
+// rating details GET request for to get all rating details count
+router.get("/get/count", async (req, res) => {
+    const ratingDetailsCount = await RatingDetails.countDocuments();
+  
+    res.status(200).json({success: true, count: ratingDetailsCount});
+  });
+
 // rating details POST request for to get a new rating details
 router.post("/", async (req, res) => {
   let ratingDetails = new RatingDetails({
