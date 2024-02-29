@@ -1,0 +1,26 @@
+{
+  "name": "mylearn-backend",
+  "version": "1.0.0",
+  "description": "This is An API for MyLearn Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "n",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Orxan-Ibrahimov/MyLearn-Backend.git"
+  },
+  "keywords": [
+    "Project"
+  ],
+  "author": "Orkhan Ibrahimov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Orxan-Ibrahimov/MyLearn-Backend/issues"
+  },
+  "homepage": "https://github.com/Orxan-Ibrahimov/MyLearn-Backend#readme",
+  "dependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
