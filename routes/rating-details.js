@@ -2,6 +2,19 @@ const express = require("express");
 const { RatingDetails } = require("../models/rating-details");
 const router = express.Router();
 
+// rating details GET request for to get all rating details list
+router.get("/", async (req, res) => {
+  const ratingDetailsList = await RatingDetails.find();
+
+  if (!ratingDetailsList)
+    return res
+      .status(404)
+      .json({ success: false, message: "not found any ratingDetails!" });
+
+  res.status(200).send(ratingDetailsList);
+});
+
+// rating details POST request for to get a new rating details 
 router.post("/", async (req, res) => {
   let ratingDetails = new RatingDetails({
     point: req.body.point,
