@@ -16,17 +16,29 @@ router.get("/", async (req, res) => {
 
 // rating details GET request for to get any rating details for ID
 router.get("/:rid", async (req, res) => {
-    const ratingDetails = await RatingDetails.findById(req.params.rid);
-  
-    if (!ratingDetails)
-      return res
-        .status(404)
-        .json({ success: false, message: "The ratingDetailsnot found!" });
-  
-    res.status(200).send(ratingDetails);
-  });
+  const ratingDetails = await RatingDetails.findById(req.params.rid);
 
-// rating details POST request for to get a new rating details 
+  if (!ratingDetails)
+    return res
+      .status(404)
+      .json({ success: false, message: "The ratingDetails not found!" });
+
+  res.status(200).send(ratingDetails);
+});
+
+// rating details DELETE request for to remove any rating details for ID
+router.delete("/:rid", async (req, res) => {
+  const ratingDetails = await RatingDetails.findByIdAndDelete(req.params.rid);
+
+  if (!ratingDetails)
+    return res
+      .status(404)
+      .json({ success: false, message: "The ratingDetails can not removed!" });
+
+  res.status(200).send(ratingDetails);
+});
+
+// rating details POST request for to get a new rating details
 router.post("/", async (req, res) => {
   let ratingDetails = new RatingDetails({
     point: req.body.point,
