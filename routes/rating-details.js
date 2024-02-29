@@ -14,6 +14,18 @@ router.get("/", async (req, res) => {
   res.status(200).send(ratingDetailsList);
 });
 
+// rating details GET request for to get any rating details for ID
+router.get("/:rid", async (req, res) => {
+    const ratingDetails = await RatingDetails.findById(req.params.rid);
+  
+    if (!ratingDetails)
+      return res
+        .status(404)
+        .json({ success: false, message: "The ratingDetailsnot found!" });
+  
+    res.status(200).send(ratingDetails);
+  });
+
 // rating details POST request for to get a new rating details 
 router.post("/", async (req, res) => {
   let ratingDetails = new RatingDetails({
