@@ -8,14 +8,17 @@ const bodyParser = require('body-parser');
 
 const citizensRouter = require('./routes/citizenship');
 const ratingDetailsRouter = require('./routes/rating-details');
+const lessonRouter = require('./routes/lesson');
 
 app.use(morgan('tiny'))
 app.use(bodyParser.json());
 app.use('/public/uploads', express.static(__dirname + '/public/uploads'));
+app.use('/public/lessons', express.static(__dirname + '/public/lessons'));
 
 // Routes
 app.use(`${API_URL}/citizenships`, citizensRouter);
 app.use(`${API_URL}/ratingDetails`, ratingDetailsRouter);
+app.use(`${API_URL}/lessons`, lessonRouter);
 
 mongoose
   .connect(process.env.DATABASE_CONNECTION, {

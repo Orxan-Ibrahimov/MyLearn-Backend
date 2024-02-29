@@ -3,7 +3,6 @@ const { Citizenship } = require("../models/citizenship");
 const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
-const path = require("path");
 
 const FILE_TYPES = {
   "image/png": "png",
