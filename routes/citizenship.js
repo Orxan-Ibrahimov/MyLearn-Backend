@@ -3,6 +3,7 @@ const { Citizenship } = require("../models/citizenship");
 const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
+const path = require("path");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -77,31 +78,40 @@ router.post("/", uploadOptions.single("flag"), async (req, res) => {
 
 // citizens PUT request for to update the citizen
 router.put("/:cid", uploadOptions.single("flag"), async (req, res) => {
+  // Find Old CitizenShip and Check
   const oldCitizenship = await Citizenship.findById(req.params.cid);
   if (!oldCitizenship)
     return res
       .status(500)
       .json({ success: false, message: "product was not found in database" });
 
+  // Check Flag Image Sended Or Not
   const file = req.file;
-  let flagImage = oldCitizenship.flag;
-  if (file)
-    flagImage = `${req.protocol}://${req.get("host")}/public/uploads/${
+  let newFlagImage = oldCitizenship.flag;
+  if (file) {
+    // Remove Flag Image Form Folder and Define New Flag Image Path
+    let oldFlagImage = oldCitizenship.flag.split("/");
+    oldFlagImage = oldFlagImage[oldFlagImage.length - 1];
+    await fs.unlinkSync(`./public/uploads/${oldFlagImage}`, (err) => {
+      if (err) res.status(500).json({ success: false, message: err });
+    });
+
+    newFlagImage = `${req.protocol}://${req.get("host")}/public/uploads/${
       file.filename
     }`;
+  }
 
+  // Update CitiZen
   let citizenship = await Citizenship.findByIdAndUpdate(
     req.params.cid,
     {
       citizenship: req.body.citizenship,
-      flag: flagImage,
+      flag: newFlagImage,
     },
     {
       new: true,
     }
   );
-
-  citizenship = await citizenship.save();
 
   if (!citizenship)
     return res
