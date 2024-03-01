@@ -132,8 +132,8 @@ router.delete("/:cid", async (req, res) => {
           .json({ success: false, message: "citizenship can not be deleted!" });
 
       fs.unlink(`./public/uploads/${flagImage}`, (err) => {
-        if (err) throw err;
-        console.log("path/file.txt was deleted");
+        if (err)
+          return res.status(500).json({ success: false, message: err.message });
       });
 
       res.send(citizenship);
