@@ -111,11 +111,22 @@ router.delete("/:userId", async (req, res) => {
           .status(404)
           .json({ success: false, message: "user can not find!" });
 
+      // Remove Removed User's Profile Image
       oldProfile = removedUser.profile.split("/");
       oldProfile = oldProfile[oldProfile.length - 1];
       let profileImage = path.join(__dirname, `../public/avatars`, oldProfile);
       let checkImage = await fs.existsSync(profileImage, (exists) => exists);
       if (checkImage) await fs.unlinkSync(profileImage);
+
+      // Remove User From Citizens
+      let citizenship = await Citizenship.findById(removedUser.citizenship);
+      if (citizenship.citizens.includes(removedUser.id)) {
+        console.log("id:", removedUser.id);
+        let citizenIndex = citizenship.citizens.indexOf(removedUser.id);
+        console.log("citizen index:", citizenIndex);
+        citizenship.citizens.splice(citizenIndex, 1);
+        citizenship = await citizenship.save();
+      }
 
       res.status(200).send(removedUser);
     })
