@@ -38,7 +38,8 @@ const UserSchema = mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: Object.values(Genders)
+    enum: Object.values(Genders),
+    required: true
   },
   password: {
     type: String,
@@ -54,7 +55,8 @@ const UserSchema = mongoose.Schema({
   },
   role: {
     type: String,
-    enum: Object.values(Roles)
+    enum: Object.values(Roles),
+    required: true
   },
 //   comments: [{
 //     type: mongoose.Schema.Types.ObjectId,

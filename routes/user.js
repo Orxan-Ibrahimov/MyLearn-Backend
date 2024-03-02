@@ -29,8 +29,28 @@ const storage = multer.diskStorage({
 
 const uploadOptions = multer({ storage: storage });
 
-// let image = require('../helpers/images/default-avatars/');
-router.get("/", (req, res) => {});
+// GET Request For Find Users List 
+router.get("/", async (req, res) => {
+  const userList = await User.find().select('-password');
+  if(!userList) return res.status(404).json({success: false, message: "not found any user!"});
+
+  res.status(200).send(userList);
+});
+
+// GET Request For Find Any Users  
+router.get("/:userId", async (req, res) => {
+  const user = await User.findById(req.params.userId).select('-password');
+  if(!user) return res.status(404).json({success: false, message: "User not found!"});
+
+  res.status(200).send(user);
+});
+
+// GET Request For Count Users  
+router.get("/get/count", async (req, res) => {
+  const userCount = await User.find(req.params.userId).countDocuments();
+  
+  res.status(200).send({success: true, count: userCount});
+});
 
 // User Register Request 
 router.post("/register", uploadOptions.single('profile'), async (req, res) => {
