@@ -29,33 +29,39 @@ const storage = multer.diskStorage({
 
 const uploadOptions = multer({ storage: storage });
 
-// GET Request For Find Users List 
+// GET Request For Find Users List
 router.get("/", async (req, res) => {
-  const userList = await User.find().select('-password');
-  if(!userList) return res.status(404).json({success: false, message: "not found any user!"});
+  const userList = await User.find().select("-password");
+  if (!userList)
+    return res
+      .status(404)
+      .json({ success: false, message: "not found any user!" });
 
   res.status(200).send(userList);
 });
 
-// GET Request For Find Any Users  
+// GET Request For Find Any Users
 router.get("/:userId", async (req, res) => {
-  const user = await User.findById(req.params.userId).select('-password');
-  if(!user) return res.status(404).json({success: false, message: "User not found!"});
+  const user = await User.findById(req.params.userId).select("-password").populate('citizenship');
+  if (!user)
+    return res.status(404).json({ success: false, message: "User not found!" });
 
   res.status(200).send(user);
 });
 
-// GET Request For Count Users  
+// GET Request For Count Users
 router.get("/get/count", async (req, res) => {
   const userCount = await User.find(req.params.userId).countDocuments();
-  
-  res.status(200).send({success: true, count: userCount});
+
+  res.status(200).send({ success: true, count: userCount });
 });
 
-// User Register Request 
-router.post("/register", uploadOptions.single('profile'), async (req, res) => {
-
-  if(req.file) req.body.profile = `${req.protocol}://${req.get('host')}/public/avatars/${req.file.filename}`;
+// User Register Request
+router.post("/register", uploadOptions.single("profile"), async (req, res) => {
+  if (req.file)
+    req.body.profile = `${req.protocol}://${req.get("host")}/public/avatars/${
+      req.file.filename
+    }`;
 
   let user = new User({
     name: req.body.name,
@@ -68,7 +74,7 @@ router.post("/register", uploadOptions.single('profile'), async (req, res) => {
     citizenship: req.body.citizenship,
     gender: req.body.gender,
     password: bcryptjs.hashSync(req.body.password),
-    profile:  req.body.profile,
+    profile: req.body.profile,
     registrationDate: req.body.registrationDate,
     role: req.body.role,
   });
@@ -83,6 +89,27 @@ router.post("/register", uploadOptions.single('profile'), async (req, res) => {
   res.status(201).send(user);
 });
 router.put("/", (req, res) => {});
-router.delete("/", (req, res) => {});
+
+// DELETE Request For To Remove User By Id
+router.delete("/:userId", async (req, res) => {
+  const user = User.findByIdAndDelete(req.params.userId)
+    .then(async function (removedUser) {
+      if (!removedUser)
+        return res
+          .status(404)
+          .json({ success: false, message: "user can not find!" });
+
+      oldProfile = removedUser.profile.split("/");
+      oldProfile = oldProfile[oldProfile.length - 1];
+      let profileImage = path.join(__dirname, `../public/avatars`, oldProfile);
+      let checkImage = await fs.existsSync(profileImage, (exists) => exists);
+      if (checkImage) await fs.unlinkSync(profileImage);
+
+      res.status(200).send(removedUser);
+    })
+    .catch((err) => {
+      return res.status(500).json({ success: false, message: err.message });
+    });
+});
 
 module.exports = router;
