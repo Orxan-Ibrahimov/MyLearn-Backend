@@ -6,6 +6,7 @@ const multer = require("multer");
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
+const { Citizenship } = require("../models/citizenship");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -42,7 +43,9 @@ router.get("/", async (req, res) => {
 
 // GET Request For Find Any Users
 router.get("/:userId", async (req, res) => {
-  const user = await User.findById(req.params.userId).select("-password").populate('citizenship');
+  const user = await User.findById(req.params.userId)
+    .select("-password")
+    .populate("citizenship");
   if (!user)
     return res.status(404).json({ success: false, message: "User not found!" });
 
@@ -86,8 +89,17 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
       .status(500)
       .json({ success: false, message: "User datas is wrong!" });
 
+  // Add User to The Users' Citizens
+  let citizenship = await Citizenship.findById(user.citizenship).populate(
+    "citizens"
+  );
+  console.log("citizenship:", citizenship);
+  citizenship.citizens.push(user.id);
+  citizenship = await citizenship.save();
+
   res.status(201).send(user);
 });
+
 router.put("/", (req, res) => {});
 
 // DELETE Request For To Remove User By Id

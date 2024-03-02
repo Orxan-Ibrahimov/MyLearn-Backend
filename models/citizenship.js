@@ -9,10 +9,10 @@ const CitizenshipSchema = mongoose.Schema({
         type: String,
         required:true
     },
-    // citizens: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'User',
-    // }]
+    citizens: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }]
 });
 
 const Citizenship = mongoose.model('Citizenship', CitizenshipSchema);
