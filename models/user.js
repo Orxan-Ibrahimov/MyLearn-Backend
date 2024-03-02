@@ -46,6 +46,7 @@ const UserSchema = mongoose.Schema({
   },
   profile: {
     type: String,
+    default: "default.jpg"
   },
   registrationDate: {
     type: Date,
@@ -78,6 +79,10 @@ const UserSchema = mongoose.Schema({
 
 });
 
+Object.assign(UserSchema.statics, {
+    Genders,Roles
+  });
+  
 const User = mongoose.model("User", UserSchema);
 
 exports.User = User;
