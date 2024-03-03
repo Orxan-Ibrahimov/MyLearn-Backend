@@ -4,7 +4,6 @@ const router = express.Router();
 const bcryptjs = require("bcryptjs");
 const multer = require("multer");
 const fs = require("fs");
-const http = require("http");
 const path = require("path");
 const { Citizenship } = require("../models/citizenship");
 
@@ -100,7 +99,81 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
   res.status(201).send(user);
 });
 
-router.put("/", (req, res) => {});
+router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
+  // Find old user and check it
+  const oldUser = await User.findById(req.params.userId);
+
+  if (!oldUser)
+    return res.status(404).json({
+      success: false,
+      message: "user that you want to modify can not found!",
+    });
+
+  // Define new and old profile paths
+  let newProfileImage = oldUser.profile;
+  let oldProfileImage;
+  if (req.file) {
+    oldProfileImage = oldUser.profile.split("/");
+    oldProfileImage = oldProfileImage[oldProfileImage.length - 1];
+    oldProfileImage = path.join(
+      __dirname,
+      "../public/avatars",
+      oldProfileImage
+    );
+
+    newProfileImage = `${req.protocol}://${req.get("host")}/public/avatars/${
+      req.file.filename
+    }`;
+
+    console.log(oldUser);
+  }
+  let user = await User.findByIdAndUpdate(
+    req.params.userId,
+    {
+      name: req.body.name,
+      surname: req.body.surname,
+      nickname: req.body.nickname,
+      birthday: req.body.birthday,
+      phone: req.body.phone,
+      email: req.body.email,
+      professional: req.body.professional,
+      citizenship: req.body.citizenship,
+      gender: req.body.gender,
+      profile: newProfileImage,
+      role: req.body.role,
+    },
+    { new: true }
+  ).select("-password");
+
+  if (!user)
+    return res
+      .status(400)
+      .json({ success: false, message: "user can not be updated!" });
+
+  // remove old image from folder
+  let checkProfileExists = await fs.existsSync(oldProfileImage);
+  if (checkProfileExists)
+    await fs.unlinkSync(oldProfileImage, (err) => {
+      if (err) res.status(500).json({ success: false, message: err });
+    });
+
+  //remove old citizenship and add new citizenship at citizenships list
+  if (req.body.citizenship && req.body.citizenship != oldUser.citizenship) {
+    //remove user from old citizenship's citizens list
+    let oldCitizenship = await Citizenship.findById(oldUser.citizenship);
+    userIndexAtCitizens = oldCitizenship.citizens.indexOf(oldUser.id);
+    if (userIndexAtCitizens > -1)
+      oldCitizenship.citizens.splice(userIndexAtCitizens, 1);
+    oldCitizenship = await oldCitizenship.save();
+
+    //add user to new citizenship's citizens list
+    let newCitizenship = await Citizenship.findById(req.body.citizenship);
+    newCitizenship.citizens.push(oldUser.id);
+    newCitizenship = await newCitizenship.save();
+  }
+
+  res.status(200).send(user);
+});
 
 // DELETE Request For To Remove User By Id
 router.delete("/:userId", async (req, res) => {
