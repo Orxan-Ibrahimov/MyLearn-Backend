@@ -14,6 +14,7 @@ const UserSchema = mongoose.Schema({
   nickname: {
     type: String,
     required: true,
+    unique: true
   },
   birthday: {
     type: Date,
@@ -26,6 +27,7 @@ const UserSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true
   },
   professional: {
     type: String,
@@ -44,6 +46,7 @@ const UserSchema = mongoose.Schema({
   password: {
     type: String,
     required: true,
+    unique: true
   },
   profile: {
     type: String,
