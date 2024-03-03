@@ -13,8 +13,9 @@ const UserSchema = mongoose.Schema({
   },
   nickname: {
     type: String,
-    required: true,
-    unique: true
+    unique: true,
+    required: true,  
+    index: true  
   },
   birthday: {
     type: Date,
@@ -27,7 +28,12 @@ const UserSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please enter a valid email',
+    ],
   },
   professional: {
     type: String,

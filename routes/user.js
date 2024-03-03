@@ -1,11 +1,13 @@
 const express = require("express");
 const { User } = require("../models/user");
+require("dotenv/config");
 const router = express.Router();
 const bcryptjs = require("bcryptjs");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const { Citizenship } = require("../models/citizenship");
+const imageRoute = "public/avatars";
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -58,10 +60,17 @@ router.get("/get/count", async (req, res) => {
   res.status(200).send({ success: true, count: userCount });
 });
 
+// User Login Request
+router.post("/login", async (req, res) => {
+  const user = await User.findOne({ nickname: req.body.nickname });
+  console.log("user:", user);
+  // res.send(user);
+});
+
 // User Register Request
 router.post("/register", uploadOptions.single("profile"), async (req, res) => {
   if (req.file)
-    req.body.profile = `${req.protocol}://${req.get("host")}/public/avatars/${
+    req.body.profile = `${req.protocol}://${req.get("host")}/${imageRoute}/${
       req.file.filename
     }`;
 
@@ -81,22 +90,28 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
     role: req.body.role,
   });
 
-  user = await user.save();
+  user = user
+    .save()
+    .then(async (createdUser) => {
+      if (!createdUser)
+        return res
+          .status(500)
+          .json({ success: false, message: "User datas is wrong!" });
 
-  if (!user)
-    return res
-      .status(500)
-      .json({ success: false, message: "User datas is wrong!" });
+      // Add User to The Users' Citizens
+      let citizenship = await Citizenship.findById(
+        createdUser.citizenship
+      ).populate("citizens");
+      console.log("citizenship:", citizenship);
+      citizenship.citizens.push(createdUser.id);
+      citizenship = await citizenship.save();
 
-  // Add User to The Users' Citizens
-  let citizenship = await Citizenship.findById(user.citizenship).populate(
-    "citizens"
-  );
-  console.log("citizenship:", citizenship);
-  citizenship.citizens.push(user.id);
-  citizenship = await citizenship.save();
-
-  res.status(201).send(user);
+      res.status(201).send(createdUser);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
 });
 
 router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
@@ -115,13 +130,9 @@ router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
   if (req.file) {
     oldProfileImage = oldUser.profile.split("/");
     oldProfileImage = oldProfileImage[oldProfileImage.length - 1];
-    oldProfileImage = path.join(
-      __dirname,
-      "../public/avatars",
-      oldProfileImage
-    );
+    oldProfileImage = path.join(__dirname, `../${imageRoute}`, oldProfileImage);
 
-    newProfileImage = `${req.protocol}://${req.get("host")}/public/avatars/${
+    newProfileImage = `${req.protocol}://${req.get("host")}/${imageRoute}/${
       req.file.filename
     }`;
 
@@ -187,7 +198,7 @@ router.delete("/:userId", async (req, res) => {
       // Remove Removed User's Profile Image
       oldProfile = removedUser.profile.split("/");
       oldProfile = oldProfile[oldProfile.length - 1];
-      let profileImage = path.join(__dirname, `../public/avatars`, oldProfile);
+      let profileImage = path.join(__dirname, `../${imageRoute}`, oldProfile);
       let checkImage = await fs.existsSync(profileImage, (exists) => exists);
       if (checkImage) await fs.unlinkSync(profileImage);
 
