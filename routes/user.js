@@ -8,6 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const { Citizenship } = require("../models/citizenship");
 const imageRoute = "public/avatars";
+const jwt = require("jsonwebtoken");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -63,8 +64,24 @@ router.get("/get/count", async (req, res) => {
 // User Login Request
 router.post("/login", async (req, res) => {
   const user = await User.findOne({ nickname: req.body.nickname });
-  console.log("user:", user);
-  // res.send(user);
+  if (!user)
+    return res
+      .status(404)
+      .json({ success: false, message: "user can not found!" });
+
+  if (!bcryptjs.compare(req.body.password, user.password))
+    return res
+      .status(404)
+      .json({ success: false, message: "password or nickname is inccorect" });
+
+  const token = jwt.sign(
+    { role: user.role, userId: user.id },
+    process.env.MY_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+  res.status(200).send({ success: true, token: token });
 });
 
 // User Register Request
