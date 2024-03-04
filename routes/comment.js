@@ -118,6 +118,7 @@ router.delete("/:cid", async (req, res) => {
         user.comments.splice(commnetIndexAtUserComments, 1);
         user = await user.save();
       }
+      
       res.status(200).send(deletedComment);
     })
     .catch((err) => {
