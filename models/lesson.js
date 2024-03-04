@@ -26,14 +26,10 @@ const LessonSchema = mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
     }],
-  // comments: {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'Comment'
-  // },
-  // likes: {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'Likes'
-  // }
+  likes: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Likes'
+  }]
 });
 
 const Lesson = mongoose.model("Lesson", LessonSchema);

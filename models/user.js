@@ -71,10 +71,10 @@ const UserSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment'
   }], 
-//   likes: [{
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Like'
-//   }],
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Like'
+  }],
 //   myCourses: [{
 //     type: mongoose.Schema.Types.ObjectId,
 //     ref: 'Playlist'
