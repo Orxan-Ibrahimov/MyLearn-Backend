@@ -11,7 +11,7 @@ const ratingDetailsRouter = require('./routes/rating-details');
 const lessonRouter = require('./routes/lesson');
 const userRouter = require('./routes/user');
 const commentRouter = require('./routes/comment');
-const likeRouter = require('./routes/like');
+const likeRouter = require('./routes/lesson-like');
 
 app.use(morgan('tiny'))
 app.use(bodyParser.json());

@@ -1,5 +1,5 @@
 const express = require("express");
-const { Like } = require("../models/like");
+const { Like } = require("../models/lesson-like");
 const { User } = require("../models/user");
 const { Lesson } = require("../models/lesson");
 const router = express.Router();
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 router.get("/:lid", async (req, res) => {});
 
 // likes POST request for to create a new like 
-router.post("/", async (req, res) => {
+router.post("/", async(req, res) => {
   let like = new Like({
     lesson: req.body.lesson,
     user: req.body.user,
