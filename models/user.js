@@ -32,7 +32,7 @@ const UserSchema = mongoose.Schema({
     index: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please enter a valid email',
+      'Please enter a valid email'
     ],
   },
   professional: {

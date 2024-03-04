@@ -4,8 +4,19 @@ const { User } = require("../models/user");
 const { Lesson } = require("../models/lesson");
 const router = express.Router();
 
-router.get("/", async (req, res) => {});
+// likes GET request for to get likes list 
+router.get("/", async (req, res) => {
+    const likesList = await Like.find().populate(["lesson", "user"]);
+
+    if(!likesList) return res.status(404).json({success: false, message: "not found any like!"});
+
+    res.status(200).send(likesList);
+});
+
+// likes GET request for to get the like 
 router.get("/:lid", async (req, res) => {});
+
+// likes POST request for to create a new like 
 router.post("/", async (req, res) => {
   let like = new Like({
     lesson: req.body.lesson,
@@ -38,6 +49,7 @@ router.post("/", async (req, res) => {
 
   res.status(201).send(like);
 });
+
 router.delete("/", async (req, res) => {});
 
 module.exports = router;
