@@ -34,7 +34,7 @@ const uploadOptions = multer({ storage: storage });
 
 // GET Request For Find Users List
 router.get("/", async (req, res) => {
-  const userList = await User.find().select("-password");
+  const userList = await User.find().populate(["citizenship", "comments"]).select("-password");
   if (!userList)
     return res
       .status(404)
@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
 router.get("/:userId", async (req, res) => {
   const user = await User.findById(req.params.userId)
     .select("-password")
-    .populate("citizenship");
+    .populate(["citizenship", "comments"]);
   if (!user)
     return res.status(404).json({ success: false, message: "User not found!" });
 

@@ -28,7 +28,7 @@ const uploadOptions = multer({ storage: storage });
 
 // Lesson GET Request To Get lessons list
 router.get("/", async (req, res) => {
-  const lessons = await Lesson.find();
+  const lessons = await Lesson.find().populate("comments");
 
   if (!lessons)
     return res
@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
 
 // Lesson GET Request To Get the lesson
 router.get("/:lid", async (req, res) => {
-  const lesson = await Lesson.findById(req.params.lid);
+  const lesson = await Lesson.findById(req.params.lid).populate("comments");
 
   if (!lesson)
     return res
