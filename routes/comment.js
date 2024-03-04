@@ -4,6 +4,7 @@ const { Lesson } = require("../models/lesson");
 const { User } = require("../models/user");
 const router = express.Router();
 
+// comments GET request for to get the comments list
 router.get("/", async (req, res) => {
   const commentsList = await Comment.find().populate(["lesson", "user"]);
 
@@ -14,6 +15,8 @@ router.get("/", async (req, res) => {
 
   res.status(200).send(commentsList);
 });
+
+// comments GET request for to get the comment
 router.get("/:cid", async (req, res) => {
   const comment = await Comment.findById(req.params.cid).populate([
     "lesson",
@@ -68,6 +71,37 @@ router.post("/", async (req, res) => {
   res.status(201).send(comment);
 });
 router.put("/:cid", async (req, res) => {});
-router.delete("/:cid", async (req, res) => {});
+
+// comments DELETE request for to delete the comment
+router.delete("/:cid", async (req, res) => {
+  const comment = Comment.findByIdAndDelete(req.params.cid)
+    .then(async (deletedComment) => {
+      if (!deletedComment)
+        return res
+          .status(400)
+          .json({ success: false, message: "Comment can not be deleted!" });
+
+      // Delete Comment From Lesson's Comments List
+      let lesson = await Lesson.findById(deletedComment.lesson);
+      commnetIndexAtLessonComments = lesson.comments.indexOf(deletedComment.id);
+      if (commnetIndexAtLessonComments > -1) {
+        lesson.comments.splice(commnetIndexAtLessonComments, 1);
+        lesson = await lesson.save();
+      }
+
+      // Delete Comment From User's Comments List
+      let user = await User.findById(deletedComment.user);
+      commnetIndexAtUserComments = user.comments.indexOf(deletedComment.id);
+      if (commnetIndexAtUserComments > -1) {
+        user.comments.splice(commnetIndexAtUserComments, 1);
+        user = await user.save();
+      }
+      res.status(200).send(deletedComment);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
+});
 
 module.exports = router;
