@@ -70,7 +70,29 @@ router.post("/", async (req, res) => {
 
   res.status(201).send(comment);
 });
-router.put("/:cid", async (req, res) => {});
+
+// comments UPDATE request for to modify the comment
+router.put("/:cid", async (req, res) => {
+  const comment = Comment.findByIdAndUpdate(
+    req.params.cid,
+    {
+      text: req.body.text,
+    },
+    { new: true }
+  )
+    .then((updatedComment) => {
+      if (!updatedComment)
+        return res
+          .status(400)
+          .json({ success: false, message: "comment can not be modifying!" });
+
+      res.status(200).send(updatedComment);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
+});
 
 // comments DELETE request for to delete the comment
 router.delete("/:cid", async (req, res) => {
