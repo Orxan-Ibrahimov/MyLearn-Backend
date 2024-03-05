@@ -34,7 +34,12 @@ router.get("/", async (req, res) => {
 
     res.status(200).send(playlists);
 });
-router.get("/:pid", async (req, res) => {});
+router.get("/:pid", async (req, res) => {
+    const playlist = await Playlist.findById(req.params.pid);
+    if(!playlist) return res.status(404).json({success: false, message: "The playlist not found!"});
+
+    res.status(200).send(playlist);
+});
 
 // Playlist POST Request To Added A New Playlist
 router.post("/", uploadOptions.single("cover"), async (req, res) => {
