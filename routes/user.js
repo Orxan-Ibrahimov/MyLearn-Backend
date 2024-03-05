@@ -152,8 +152,6 @@ router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
     newProfileImage = `${req.protocol}://${req.get("host")}/${imageRoute}/${
       req.file.filename
     }`;
-
-    console.log(oldUser);
   }
   let user = await User.findByIdAndUpdate(
     req.params.userId,
@@ -182,7 +180,7 @@ router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
   let checkProfileExists = await fs.existsSync(oldProfileImage);
   if (checkProfileExists)
     await fs.unlinkSync(oldProfileImage, (err) => {
-      if (err) res.status(500).json({ success: false, message: err });
+      if (err) return res.status(500).json({ success: false, message: err });
     });
 
   //remove old citizenship and add new citizenship at citizenships list

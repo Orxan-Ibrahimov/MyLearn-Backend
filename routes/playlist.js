@@ -90,8 +90,61 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
   res.status(201).send(playlist);
 });
 
-router.put("/:pid", async (req, res) => {
-    
+router.put("/:pid", uploadOptions.single("cover"), async (req, res) => {
+  let oldPlaylist = await Playlist.findById(req.params.pid);
+
+  if (!oldPlaylist)
+    return res.status(400).json({
+      success: false,
+      message: "The playlist that you want to modify can not found!",
+    });
+
+  let newCoverImage = oldPlaylist.cover;
+  let oldCoverImage;
+  if (req.file) {
+    // old cover image
+    oldCoverImage = oldPlaylist.cover.split("/");
+    console.log("oldCoverImage:", oldCoverImage);
+    oldCoverImage = oldCoverImage[oldCoverImage.length - 1];
+    console.log("oldCoverImage:", oldCoverImage);
+    oldCoverImage = path.join(__dirname, `../${playlistPath}`, oldCoverImage);
+    console.log("oldCoverImage:", oldCoverImage);
+    // new cover image
+    newCoverImage = `${req.protocol}://${req.get("host")}/${playlistPath}/${
+      req.file.filename
+    }`;
+  }
+
+  let playlist = Playlist.findByIdAndUpdate(
+    req.params.pid,
+    {
+      title: req.body.title,
+      cover: newCoverImage,
+      description: req.body.description,
+      price: req.body.price,
+    },
+    { new: true }
+  )
+    .then(async (modifiedPlaylist) => {
+      if (!modifiedPlaylist)
+        return res.status(400).json({
+          success: false,
+          message: "The playlist can not be modified!",
+        });
+
+      let checkCoverImage = await fs.existsSync(oldCoverImage);
+      if (checkCoverImage)
+        await fs.unlinkSync(oldCoverImage, (err) => {
+          if (err)
+            return res.status(500).json({ success: false, message: err });
+        });
+
+      res.status(200).send(modifiedPlaylist);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
 });
 
 // Playlist DELETE Request To Remove The Playlist For Id
@@ -101,7 +154,7 @@ router.delete("/:pid", async (req, res) => {
       if (!removedPlaylist)
         return res
           .status(400)
-          .json({ success: false, message: "The playlist can not be added!" });      
+          .json({ success: false, message: "The playlist can not be added!" });
 
       // Delete course from user's myCourses list that he teach
       let user = await User.findById(removedPlaylist.creator);
@@ -116,7 +169,7 @@ router.delete("/:pid", async (req, res) => {
       coverPath = path.join(__dirname, `../${playlistPath}`, coverPath);
       console.log("cover path:", coverPath);
       let checkImage = await fs.existsSync(coverPath, (exists) => exists);
-      if(checkImage) await fs.unlinkSync(coverPath);
+      if (checkImage) await fs.unlinkSync(coverPath);
 
       res.status(200).send(removedPlaylist);
     })

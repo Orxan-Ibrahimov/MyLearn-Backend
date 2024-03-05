@@ -2,17 +2,6 @@ const mongoose = require("mongoose");
 const { Genders } = require("../helpers/enums/gender");
 const { Roles } = require("../helpers/enums/role");
 
-function GetLocalTime() {
-  var today = new Date();
-  var date =
-    today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-  var time =
-    today.getHours() + 4 + ":" + today.getMinutes() + ":" + today.getSeconds();
-  var dateTime = date + " " + time;
-
-  return dateTime;
-}
-
 const UserSchema = mongoose.Schema({
   name: {
     type: String,
@@ -71,7 +60,7 @@ const UserSchema = mongoose.Schema({
   },
   registrationDate: {
     type: Date,
-    default: GetLocalTime(),
+    default: Date.now(),
   },
   role: {
     type: String,
