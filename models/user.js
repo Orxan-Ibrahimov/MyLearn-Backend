@@ -75,19 +75,18 @@ const UserSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Like'
   }],
-//   myCourses: [{
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Playlist'
-//   }],
-//   myEducations: [{
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Playlist'
-//   }],
+  myCourses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Playlist'
+  }],
+  myEducations: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Playlist'
+  }],
 //   ratings: [{
 //     type: mongoose.Schema.Types.ObjectId,
 //     ref: 'Rating'
 //   }],
-
 });
 
 Object.assign(UserSchema.statics, {
