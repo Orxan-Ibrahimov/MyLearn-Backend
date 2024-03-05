@@ -26,10 +26,10 @@ const playlistSchema = mongoose.Schema({
     ref: "User",
     required: true,
   },
-  subscribers: [
+  orders: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Order",
     },
   ],
   // ratings: [

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const educationSchema = mongoose.Schema({
+const orderSchema = mongoose.Schema({
     subscriber:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -17,6 +17,6 @@ const educationSchema = mongoose.Schema({
     }
 });
 
-const Education = mongoose.model('Education', educationSchema);
+const Order = mongoose.model('Order', orderSchema);
 
-exports.Education = Education;
+exports.Order = Order;

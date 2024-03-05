@@ -85,10 +85,10 @@ const UserSchema = mongoose.Schema({
       ref: "Playlist",
     },
   ],
-  myEducations: [
+  orders: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Playlist",
+      ref: "Order",
     },
   ],
   //   ratings: [{
