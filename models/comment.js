@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+function GetLocalTime() {
+    var today = new Date();
+    var date =
+      today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+    var time =
+      today.getHours() + 4 + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date + " " + time;
+  
+    return dateTime;
+  }
+
 const commentSchema = mongoose.Schema({
     text: {
         type: String,
@@ -17,7 +28,7 @@ const commentSchema = mongoose.Schema({
     },
     actionDate: {
         type: Date,
-        default: Date.now()
+        default: GetLocalTime()
     }
 });
 

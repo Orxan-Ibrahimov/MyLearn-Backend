@@ -2,6 +2,17 @@ const mongoose = require("mongoose");
 const { Genders } = require("../helpers/enums/gender");
 const { Roles } = require("../helpers/enums/role");
 
+function GetLocalTime() {
+  var today = new Date();
+  var date =
+    today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+  var time =
+    today.getHours() + 4 + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTime = date + " " + time;
+
+  return dateTime;
+}
+
 const UserSchema = mongoose.Schema({
   name: {
     type: String,
@@ -14,8 +25,8 @@ const UserSchema = mongoose.Schema({
   nickname: {
     type: String,
     unique: true,
-    required: true,  
-    index: true  
+    required: true,
+    index: true,
   },
   birthday: {
     type: Date,
@@ -32,12 +43,12 @@ const UserSchema = mongoose.Schema({
     index: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please enter a valid email'
+      "Please enter a valid email",
     ],
   },
   professional: {
     type: String,
-    default: 'student',
+    default: "student",
   },
   citizenship: {
     type: mongoose.Schema.Types.ObjectId,
@@ -47,52 +58,61 @@ const UserSchema = mongoose.Schema({
   gender: {
     type: String,
     enum: Object.values(Genders),
-    required: true
+    required: true,
   },
   password: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   profile: {
     type: String,
-    default: "default.jpg"
+    default: "default.jpg",
   },
   registrationDate: {
     type: Date,
-    default: Date.now()
+    default: GetLocalTime(),
   },
   role: {
     type: String,
     enum: Object.values(Roles),
-    required: true
+    required: true,
   },
-  comments:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment'
-  }], 
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Like'
-  }],
-  myCourses: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Playlist'
-  }],
-  myEducations: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Playlist'
-  }],
-//   ratings: [{
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Rating'
-//   }],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Like",
+    },
+  ],
+  myCourses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Playlist",
+    },
+  ],
+  myEducations: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Playlist",
+    },
+  ],
+  //   ratings: [{
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Rating'
+  //   }],
 });
 
 Object.assign(UserSchema.statics, {
-    Genders,Roles
-  });
-  
+  Genders,
+  Roles,
+});
+
 const User = mongoose.model("User", UserSchema);
 
 exports.User = User;

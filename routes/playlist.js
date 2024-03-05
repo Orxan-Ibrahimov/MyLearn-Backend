@@ -90,7 +90,9 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
   res.status(201).send(playlist);
 });
 
-router.put("/:pid", async (req, res) => {});
+router.put("/:pid", async (req, res) => {
+    
+});
 
 // Playlist DELETE Request To Remove The Playlist For Id
 router.delete("/:pid", async (req, res) => {
