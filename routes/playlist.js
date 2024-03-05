@@ -27,8 +27,16 @@ const storage = multer.diskStorage({
 
 const uploadOptions = multer({ storage: storage });
 
-router.get("/", async (req, res) => {});
+// Playlist GET Request To Get The Playlists List
+router.get("/", async (req, res) => {
+    const playlists = await Playlist.find();
+    if(!playlists) return res.status(404).json({success: false, message: "Not found any playlist!"});
+
+    res.status(200).send(playlists);
+});
 router.get("/:pid", async (req, res) => {});
+
+// Playlist POST Request To Added A New Playlist
 router.post("/", uploadOptions.single("cover"), async (req, res) => {
   const file = req.file;
   if (!file)
@@ -63,6 +71,7 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
   }
   res.status(201).send(playlist);
 });
+
 router.put("/:pid", async (req, res) => {});
 router.delete("/:pid", async (req, res) => {});
 
