@@ -4,10 +4,13 @@ const { Playlist } = require("../models/playlist");
 const { PlaylistRating } = require("../models/playlist-rating");
 const router = express.Router();
 
+// PlaylistRating GET Request To Get The Playlist Ratings List
 router.get("/", async (req, res) => {
-  const playlistRatingLists = await PlaylistRating
-    .find()
-    .populate(["course", "user", "ratingDetails"]);
+  const playlistRatingLists = await PlaylistRating.find().populate([
+    "course",
+    "user",
+    "ratingDetails",
+  ]);
 
   if (!playlistRatingLists)
     return res
@@ -16,10 +19,12 @@ router.get("/", async (req, res) => {
 
   res.status(200).send(playlistRatingLists);
 });
+
+// PlaylistRating GET Request To Get The Playlist Rating By Id
 router.get("/:prid", async (req, res) => {
-    const playlistRating = await PlaylistRating
-    .findById(req.params.prid)
-    .populate(["course", "user", "ratingDetails"]);
+  const playlistRating = await PlaylistRating.findById(
+    req.params.prid
+  ).populate(["course", "user", "ratingDetails"]);
 
   if (!playlistRating)
     return res
@@ -28,6 +33,8 @@ router.get("/:prid", async (req, res) => {
 
   res.status(200).send(playlistRating);
 });
+
+// PlaylistRating POST Request To Create A New Playlist Rating
 router.post("/", async (req, res) => {
   let playlistRating = new PlaylistRating({
     course: req.body.course,
@@ -60,7 +67,29 @@ router.post("/", async (req, res) => {
 
   res.status(201).send(playlistRating);
 });
-// router.put('/', async (req, res) => {})
-// router.delete('/', async (req, res) => {})
+
+// PlaylistRating PUT Request To Modify The Playlist Rating
+router.put("/:prid", async (req, res) => {
+  const playlistRating = await PlaylistRating.findByIdAndUpdate(
+    req.params.prid,
+    {
+      ratingDetails: req.body.ratingDetails,
+    },
+    { new: true }
+  )
+    .then((modifiedPR) => {
+      if (!modifiedPR)
+        return res.status(400).json({
+          success: false,
+          message: "Course rating can not be modifying!",
+        });
+
+      res.status(200).send(modifiedPR);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
+});
 
 module.exports = router;
