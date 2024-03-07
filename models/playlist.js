@@ -32,12 +32,12 @@ const playlistSchema = mongoose.Schema({
       ref: "Order",
     },
   ],
-  // ratings: [
-  //     {
-  //         type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'Rating',
-  //     }
-  // ]
+  ratings: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PlaylistRating",
+    },
+  ],
 });
 
 const Playlist = mongoose.model("Playlist", playlistSchema);
