@@ -60,6 +60,6 @@ router.post("/", async (req, res) => {
   res.status(201).send(order);
 });
 
-router.delete("/:eid", async (req, res) => {});
+// router.delete("/:eid", async (req, res) => {});
 
 module.exports = router;
