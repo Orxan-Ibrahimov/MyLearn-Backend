@@ -3,8 +3,31 @@ const { Review } = require("../models/review");
 const { User } = require("../models/user");
 const router = express.Router();
 
-router.get("/", async (req, res) => {});
-router.get("/:rid", async (req, res) => {});
+// Reviews GET Request To Get The Reviews List
+router.get("/", async (req, res) => {
+  const reviewsList = await Review.find();
+
+  if (!reviewsList)
+    return res
+      .status(404)
+      .json({ success: false, message: "Not found any review!" });
+
+  res.status(200).send(reviewsList);
+});
+
+// Reviews GET Request To Get The Review By Id
+router.get("/:rid", async (req, res) => {
+    const review = await Review.findById(req.params.rid);
+
+    if (!review)
+      return res
+        .status(404)
+        .json({ success: false, message: "The review not found!" });
+  
+    res.status(200).send(review);
+});
+
+// Reviews POST Request To Add A New Review To The Reviews List
 router.post("/", async (req, res) => {
   let dbUser = await User.findById(req.body.user);
   if (!dbUser)
@@ -32,6 +55,8 @@ router.post("/", async (req, res) => {
 
   res.status(201).send(review);
 });
+
+
 router.put("/:rid", async (req, res) => {});
 router.delete("/:rid", async (req, res) => {});
 
