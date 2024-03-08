@@ -95,6 +95,10 @@ const UserSchema = mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'PlaylistRating'
     }],
+    reviews: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Reiew'
+    }]
 });
 
 Object.assign(UserSchema.statics, {

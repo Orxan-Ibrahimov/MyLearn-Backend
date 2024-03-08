@@ -16,6 +16,7 @@ const playlistRouter = require('./routes/playlist');
 const orderRouter = require('./routes/order');
 const playlistRatingRouter = require('./routes/playlist-rating');
 const contactRouter = require('./routes/contact');
+const reviewRouter = require('./routes/review');
 
 app.use(morgan('tiny'))
 app.use(bodyParser.json());
@@ -33,6 +34,7 @@ app.use(`${API_URL}/playlists`, playlistRouter);
 app.use(`${API_URL}/orders`, orderRouter);
 app.use(`${API_URL}/playlistRatings`, playlistRatingRouter);
 app.use(`${API_URL}/contacts`, contactRouter);
+app.use(`${API_URL}/reviews`, reviewRouter);
 
 mongoose
   .connect(process.env.DATABASE_CONNECTION, {
