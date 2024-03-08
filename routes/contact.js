@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 
 // Contacts GET Request To Get The Contact By Id
 router.get("/:cid", async (req, res) => {
-    const contact= await Contact.findById(req.params.cid).populate("user");
+  const contact = await Contact.findById(req.params.cid).populate("user");
 
   if (!contact)
     return res
@@ -49,7 +49,25 @@ router.post("/", async (req, res) => {
 
   res.status(201).send(contact);
 });
-router.put("/", async (req, res) => {});
-router.delete("/", async (req, res) => {});
+
+// router.put("/", async (req, res) => {});
+
+
+// Contact DELETE Request To Remove The Contact From The Contacts List
+router.delete("/:cid", async (req, res) => {
+  const contact = Contact.findByIdAndDelete(req.params.cid)
+    .then((removedContact) => {
+      if (!removedContact)
+        return res
+          .status(400)
+          .json({ success: false, message: "The contact can not be added!" });
+
+          res.status(200).send(removedContact);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
+});
 
 module.exports = router;
