@@ -92,4 +92,5 @@ router.put("/:prid", async (req, res) => {
     });
 });
 
+// delete function can not be added
 module.exports = router;
