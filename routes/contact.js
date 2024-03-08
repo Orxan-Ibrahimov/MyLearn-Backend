@@ -50,8 +50,30 @@ router.post("/", async (req, res) => {
   res.status(201).send(contact);
 });
 
-// router.put("/", async (req, res) => {});
+router.put("/:cid", async (req, res) => {
+  const contact = Contact.findByIdAndUpdate(
+    req.params.cid,
+    {
+      message: req.body.message,
+    },
+    { new: true }
+  )
+    .then((modifiedContact) => {
+      if (!modifiedContact)
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "The contact can not be modified!",
+          });
 
+      res.status(200).send(modifiedContact);
+    })
+    .catch((err) => {
+      if (err)
+        return res.status(500).json({ success: false, message: err.message });
+    });
+});
 
 // Contact DELETE Request To Remove The Contact From The Contacts List
 router.delete("/:cid", async (req, res) => {
@@ -62,7 +84,7 @@ router.delete("/:cid", async (req, res) => {
           .status(400)
           .json({ success: false, message: "The contact can not be added!" });
 
-          res.status(200).send(removedContact);
+      res.status(200).send(removedContact);
     })
     .catch((err) => {
       if (err)
