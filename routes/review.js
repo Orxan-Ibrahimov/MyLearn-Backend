@@ -56,7 +56,34 @@ router.post("/", async (req, res) => {
   res.status(201).send(review);
 });
 
-router.put("/:rid", async (req, res) => {});
+// Reviews PUT Request To Modify The Review
+router.put("/:rid", async (req, res) => {
+    const review = Review.findByIdAndUpdate(
+        req.params.rid,
+        {
+            review: req.body.review,
+            ratingDetails: req.body.ratingDetails
+        },
+        { new: true }
+      )
+        .then((modifiedReview) => {
+          if (!modifiedReview)
+            return res
+              .status(400)
+              .json({
+                success: false,
+                message: "The review can not be modified!",
+              });
+    
+          res.status(200).send(modifiedReview);
+        })
+        .catch((err) => {
+          if (err)
+            return res.status(500).json({ success: false, message: err.message });
+        });
+});
+
+// Reviews DELETE Request To Remove The Review From The Reviews List
 router.delete("/:rid", async (req, res) => {
   const review = await Review.findByIdAndDelete(req.params.rid)
     .then(async (removedReview) => {
