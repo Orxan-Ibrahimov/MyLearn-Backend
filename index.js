@@ -15,6 +15,7 @@ const likeRouter = require('./routes/lesson-like');
 const playlistRouter = require('./routes/playlist');
 const orderRouter = require('./routes/order');
 const playlistRatingRouter = require('./routes/playlist-rating');
+const contactRouter = require('./routes/contact');
 
 app.use(morgan('tiny'))
 app.use(bodyParser.json());
@@ -31,6 +32,7 @@ app.use(`${API_URL}/likes`, likeRouter);
 app.use(`${API_URL}/playlists`, playlistRouter);
 app.use(`${API_URL}/orders`, orderRouter);
 app.use(`${API_URL}/playlistRatings`, playlistRatingRouter);
+app.use(`${API_URL}/contacts`, contactRouter);
 
 mongoose
   .connect(process.env.DATABASE_CONNECTION, {
