@@ -3,6 +3,15 @@ const { Citizenship } = require("../models/citizenship");
 const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
+const { Roles } = require("../helpers/enums/role");
+const authJwt = require("../helpers/secure/auth");
+const authorize = require("../helpers/secure/role_auth");
+
+// Apply authentication to ALL routes in this file
+router.use(authJwt());
+
+// Apply role restriction to ALL routes in this file
+// router.use(authorize([Roles.hero, Roles.superhero]));
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -41,6 +50,9 @@ router.get("/", async (req, res) => {
 // citizens get request for to get a Citizens for id
 router.get("/:cid", async (req, res) => {
   const citizenship = await Citizenship.findById(req.params.cid);
+
+  console.log('sss');
+  
 
   if (!citizenship)
     return res

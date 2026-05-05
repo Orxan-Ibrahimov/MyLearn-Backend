@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const API_URL = process.env.API_URL;
 const bodyParser = require('body-parser');
+const cors = require('cors');
+
 
 const citizensRouter = require('./routes/citizenship');
 const ratingDetailsRouter = require('./routes/rating-details');
@@ -17,11 +19,14 @@ const orderRouter = require('./routes/order');
 const playlistRatingRouter = require('./routes/playlist-rating');
 const contactRouter = require('./routes/contact');
 const reviewRouter = require('./routes/review');
+const authJwt = require("./helpers/secure/auth");
 
 app.use(morgan('tiny'))
+app.use(cors());
 app.use(bodyParser.json());
 app.use('/public/uploads', express.static(__dirname + '/public/uploads'));
 app.use('/public/lessons', express.static(__dirname + '/public/lessons'));
+app.use(authJwt());
 
 // Routes
 app.use(`${API_URL}/citizenships`, citizensRouter);

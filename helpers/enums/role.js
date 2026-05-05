@@ -1,5 +1,5 @@
 const Roles = Object.freeze({
-    civil: 'civil',
+    civil: 'ciwil',
     hero: 'hero',
     superhero: 'superhero',
   });
