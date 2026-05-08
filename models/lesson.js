@@ -35,6 +35,14 @@ const LessonSchema = mongoose.Schema({
   ],
 });
 
+LessonSchema.virtual("id").get(function (params) {
+  return this._id.toHexString();
+});
+
+LessonSchema.set("toJSON", {
+  virtuals: true,
+});
+
 const Lesson = mongoose.model("Lesson", LessonSchema);
 
 exports.Lesson = Lesson;

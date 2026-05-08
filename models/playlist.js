@@ -40,6 +40,14 @@ const playlistSchema = mongoose.Schema({
   ],
 });
 
+playlistSchema.virtual("id").get(function (params) {
+   return this._id.toHexString();
+});
+
+playlistSchema.set("toJSON", {
+   virtuals: true,
+});
+
 const Playlist = mongoose.model("Playlist", playlistSchema);
 
 exports.Playlist = Playlist;

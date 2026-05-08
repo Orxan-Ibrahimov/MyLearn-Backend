@@ -21,6 +21,14 @@ const RatingDetailsSchema = mongoose.Schema({
   },
 });
 
+RatingDetailsSchema.virtual("id").get(function (params) {
+   return this._id.toHexString();
+});
+
+RatingDetailsSchema.set("toJSON", {
+   virtuals: true,
+});
+
 const RatingDetails = mongoose.model("RatingDetails", RatingDetailsSchema);
 
 exports.RatingDetails = RatingDetails;

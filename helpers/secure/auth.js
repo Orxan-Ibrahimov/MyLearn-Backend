@@ -10,8 +10,10 @@ function authJwt() {
         isRevoked: isRevoked
     }).unless({
         path: [
-            { url: `${api}/citizenships`,  methods: ['GET'] },
-            { url: `${api}/users/register`, methods: ['POST'] },
+            {
+                url: new RegExp(`^${api}/citizenships`),
+                methods: ['GET']
+            }, { url: `${api}/users/register`, methods: ['POST'] },
             { url: `${api}/users/login`, methods: ['POST'] }
         ]
     })

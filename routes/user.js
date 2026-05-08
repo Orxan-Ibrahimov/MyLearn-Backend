@@ -9,6 +9,7 @@ const path = require("path");
 const { Citizenship } = require("../models/citizenship");
 const imageRoute = "public/avatars";
 const jwt = require("jsonwebtoken");
+const { Roles } = require("../helpers/enums/role");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -87,15 +88,13 @@ router.post("/login", async (req, res) => {
 // User Register Request
 router.post("/register", uploadOptions.single("profile"), async (req, res) => {
   if (req.file)
-    req.body.profile = `${req.protocol}://${req.get("host")}/${imageRoute}/${
-      req.file.filename
-    }`;
+    req.body.profile = `${req.protocol}://${req.get("host")}/${imageRoute}/${req.file.filename}`;
 
   let user = new User({
     name: req.body.name,
     surname: req.body.surname,
     nickname: req.body.nickname,
-    birthday: req.body.birthday,
+    birthday: new Date(req.body.birthday),
     phone: req.body.phone,
     email: req.body.email,
     professional: req.body.professional,
@@ -104,7 +103,8 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
     password: bcryptjs.hashSync(req.body.password),
     profile: req.body.profile,
     registrationDate: req.body.registrationDate,
-    role: req.body.role,
+    // role: req.body.role,
+    role: Roles.ciwil,
   });
 
   user = user
@@ -119,7 +119,6 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
       let citizenship = await Citizenship.findById(
         createdUser.citizenship
       ).populate("citizens");
-      console.log("citizenship:", citizenship);
       citizenship.citizens.push(createdUser.id);
       citizenship = await citizenship.save();
 
@@ -149,9 +148,7 @@ router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
     oldProfileImage = oldProfileImage[oldProfileImage.length - 1];
     oldProfileImage = path.join(__dirname, `../${imageRoute}`, oldProfileImage);
 
-    newProfileImage = `${req.protocol}://${req.get("host")}/${imageRoute}/${
-      req.file.filename
-    }`;
+    newProfileImage = `${req.protocol}://${req.get("host")}/${imageRoute}/${req.file.filename}`;
   }
   let user = await User.findByIdAndUpdate(
     req.params.userId,
@@ -220,9 +217,7 @@ router.delete("/:userId", async (req, res) => {
       // Remove User From Citizens
       let citizenship = await Citizenship.findById(removedUser.citizenship);
       if (citizenship.citizens.includes(removedUser.id)) {
-        console.log("id:", removedUser.id);
         let citizenIndex = citizenship.citizens.indexOf(removedUser.id);
-        console.log("citizen index:", citizenIndex);
         citizenship.citizens.splice(citizenIndex, 1);
         citizenship = await citizenship.save();
       }

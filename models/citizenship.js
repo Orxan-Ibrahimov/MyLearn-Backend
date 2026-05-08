@@ -15,6 +15,14 @@ const CitizenshipSchema = mongoose.Schema({
     }]
 });
 
+CitizenshipSchema.virtual("id").get(function (params) {
+  return this._id.toHexString();
+});
+
+CitizenshipSchema.set("toJSON", {
+  virtuals: true,
+});
+
 const Citizenship = mongoose.model('Citizenship', CitizenshipSchema);
 
 exports.Citizenship = Citizenship;

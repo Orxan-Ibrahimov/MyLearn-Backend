@@ -21,6 +21,14 @@ const reviewSchema = mongoose.Schema({
   }
 });
 
+reviewSchema.virtual("id").get(function (params) {
+   return this._id.toHexString();
+});
+
+reviewSchema.set("toJSON", {
+   virtuals: true,
+});
+
 const Review = mongoose.model("Review", reviewSchema);
 
 exports.Review = Review;

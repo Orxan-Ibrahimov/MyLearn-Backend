@@ -91,14 +91,22 @@ const UserSchema = mongoose.Schema({
       ref: "Order",
     },
   ],
-    ratings: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'PlaylistRating'
-    }],
-    reviews: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Reiew'
-    }]
+  ratings: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PlaylistRating'
+  }],
+  reviews: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Reiew'
+  }]
+});
+
+UserSchema.virtual("id").get(function (params) {
+  return this._id.toHexString();
+});
+
+UserSchema.set("toJSON", {
+  virtuals: true,
 });
 
 Object.assign(UserSchema.statics, {
