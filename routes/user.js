@@ -10,6 +10,7 @@ const { Citizenship } = require("../models/citizenship");
 const imageRoute = "public/avatars";
 const jwt = require("jsonwebtoken");
 const { Roles } = require("../helpers/enums/role");
+const authMiddleware = require("../middleware/auth");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -27,11 +28,14 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const filename = file.fieldname.replace(" ", "-");
     const extension = FILE_TYPES[file.mimetype];
-    cb(null, `myimagefor${filename}${Date.now()}.${extension}`);
+    cb(null, `myimagefor-${filename}${Date.now()}.${extension}`);
   },
 });
 
 const uploadOptions = multer({ storage: storage });
+
+
+// app.use(authJwt());
 
 // GET Request For Find Users List
 router.get("/", async (req, res) => {
@@ -43,6 +47,19 @@ router.get("/", async (req, res) => {
 
   res.status(200).send(userList);
 });
+
+router.get('/me', authMiddleware, async (req, res) => {
+  const user = await User.findById(req.user.userId);
+
+  if (!user) {
+    return res.status(404).json({
+      message: 'User not found'
+    });
+  }
+
+  res.json(user);
+});
+
 
 // GET Request For Find Any Users
 router.get("/:userId", async (req, res) => {
@@ -102,11 +119,13 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
     gender: req.body.gender,
     password: bcryptjs.hashSync(req.body.password),
     profile: req.body.profile,
-    registrationDate: req.body.registrationDate,
-    // role: req.body.role,
+    registrationDate: Date.now(),
     role: Roles.ciwil,
+   
   });
 
+  user.roles.push(Roles.ciwil);
+  
   user = user
     .save()
     .then(async (createdUser) => {
@@ -129,6 +148,57 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
         return res.status(500).json({ success: false, message: err.message });
     });
 });
+
+// router.post("/register", uploadOptions.single("profile"), async (req, res) => {
+//   try {
+//     if (req.file) {
+//       req.body.profile =
+//         `${req.protocol}://${req.get("host")}/${imageRoute}/${req.file.filename}`;
+//     }
+
+//     let user = new User({
+//       name: req.body.name,
+//       surname: req.body.surname,
+//       nickname: req.body.nickname,
+//       birthday: new Date(req.body.birthday),
+//       phone: req.body.phone,
+//       email: req.body.email,
+//       professional: req.body.professional,
+//       citizenship: req.body.citizenship,
+//       gender: req.body.gender,
+//       password: bcryptjs.hashSync(req.body.password),
+//       profile: req.body.profile,
+//       registrationDate: new Date(),
+//       role: Roles.ciwil,
+//       roles: [Roles.ciwil]
+//     });
+
+
+//     const createdUser = await user.save();
+
+//     if (!createdUser) {
+//       return res.status(500).json({
+//         success: false,
+//         message: "User not created"
+//       });
+//     }
+
+//     const citizenship = await Citizenship.findById(createdUser.citizenship);
+
+//     if (citizenship) {
+//       citizenship.citizens.push(createdUser.id);
+//       await citizenship.save();
+//     }
+
+//     res.status(201).send(createdUser);
+
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: err.message
+//     });
+//   }
+// });
 
 router.put("/:userId", uploadOptions.single("profile"), async (req, res) => {
   // Find old user and check it

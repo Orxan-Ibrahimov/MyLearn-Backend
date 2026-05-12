@@ -104,15 +104,10 @@ router.put("/:pid", uploadOptions.single("cover"), async (req, res) => {
   if (req.file) {
     // old cover image
     oldCoverImage = oldPlaylist.cover.split("/");
-    console.log("oldCoverImage:", oldCoverImage);
     oldCoverImage = oldCoverImage[oldCoverImage.length - 1];
-    console.log("oldCoverImage:", oldCoverImage);
     oldCoverImage = path.join(__dirname, `../${playlistPath}`, oldCoverImage);
-    console.log("oldCoverImage:", oldCoverImage);
     // new cover image
-    newCoverImage = `${req.protocol}://${req.get("host")}/${playlistPath}/${
-      req.file.filename
-    }`;
+    newCoverImage = `${req.protocol}://${req.get("host")}/${playlistPath}/${req.file.filename}`;
   }
 
   let playlist = Playlist.findByIdAndUpdate(
@@ -167,7 +162,7 @@ router.delete("/:pid", async (req, res) => {
       let coverPath = removedPlaylist.cover.split("/");
       coverPath = coverPath[coverPath.length - 1];
       coverPath = path.join(__dirname, `../${playlistPath}`, coverPath);
-      console.log("cover path:", coverPath);
+
       let checkImage = await fs.existsSync(coverPath, (exists) => exists);
       if (checkImage) await fs.unlinkSync(coverPath);
 

@@ -67,10 +67,22 @@ const UserSchema = mongoose.Schema({
     enum: Object.values(Roles),
     required: true,
   },
+  roles: [
+    {
+      type: String,
+      enum: Object.values(Roles),
+    },
+  ],
   comments: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
+    },
+  ],
+  contact_messages: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Contact",
     },
   ],
   likes: [
@@ -97,7 +109,7 @@ const UserSchema = mongoose.Schema({
   }],
   reviews: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Reiew'
+    ref: 'Review'
   }]
 });
 

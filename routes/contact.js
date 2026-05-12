@@ -2,6 +2,8 @@ const express = require("express");
 const { Contact } = require("../models/contact");
 const { User } = require("../models/user");
 const router = express.Router();
+const authMiddleware = require("../middleware/auth");
+const { Subject } = require("../models/Subject");
 
 // Contacts GET Request To Get The Contact List
 router.get("/", async (req, res) => {
@@ -29,15 +31,17 @@ router.get("/:cid", async (req, res) => {
 
 // Contact POST Request To Add A New Contact To The Contacts List
 router.post("/", async (req, res) => {
-  let dbUser = await User.findById(req.body.user);
-  if (!dbUser)
+  let user = await User.findOne({ nickname: req.body.nickname });
+
+  if (!user)
     return res
       .status(404)
       .json({ success: false, message: "The user was not at database!" });
 
   let contact = new Contact({
     message: req.body.message,
-    user: req.body.user,
+    user: user._id,
+    subject: req.body.subject
   });
 
   if (!contact)
@@ -46,6 +50,13 @@ router.post("/", async (req, res) => {
       .json({ success: false, message: "The contact can not be added!" });
 
   contact = await contact.save();
+
+  user.contact_messages.push(contact._id);
+  user = await user.save();
+
+  let subject = await Subject.findById(req.body.subject).populate("messages");
+  subject.messages.push(contact._id);
+  subject = await subject.save();
 
   res.status(201).send(contact);
 });

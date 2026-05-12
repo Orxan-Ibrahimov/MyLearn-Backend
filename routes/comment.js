@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
     return res
       .status(400)
       .json({ success: false, message: "comment's lesson not found!" });
-  console.log("lesson: ", lesson);
+
   lesson.comments.push(comment);
   lesson = await lesson.save();
 
@@ -118,7 +118,7 @@ router.delete("/:cid", async (req, res) => {
         user.comments.splice(commnetIndexAtUserComments, 1);
         user = await user.save();
       }
-      
+
       res.status(200).send(deletedComment);
     })
     .catch((err) => {

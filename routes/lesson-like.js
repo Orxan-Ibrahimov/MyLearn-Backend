@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
 
   // Added like to the user's likes list
   let user = await User.findById(like.user);
-  console.log("user: ", user);
+
   if (!user.likes.includes(like.id)) {
     user.likes.push(like.id);
     user = await user.save();
@@ -53,7 +53,6 @@ router.post("/", async (req, res) => {
 
   // Added like to the lesson's likes list
   let lesson = await Lesson.findById(like.lesson);
-  console.log("lesson: ", lesson);
   if (!lesson.likes.includes(like.id)) {
     lesson.likes.push(like.id);
     lesson = await lesson.save();

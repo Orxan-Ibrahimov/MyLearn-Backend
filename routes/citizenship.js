@@ -8,7 +8,7 @@ const authJwt = require("../helpers/secure/auth");
 const authorize = require("../helpers/secure/role_auth");
 
 // Apply authentication to ALL routes in this file
-router.use(authJwt());
+// router.use(authJwt());
 
 // Apply role restriction to ALL routes in this file
 // router.use(authorize([Roles.hero, Roles.superhero]));
@@ -49,10 +49,7 @@ router.get("/", async (req, res) => {
 
 // citizens get request for to get a Citizens for id
 router.get("/:cid", async (req, res) => {
-  const citizenship = await Citizenship.findById(req.params.cid);
-
-  console.log('sss');
-  
+  const citizenship = await Citizenship.findById(req.params.cid);  
 
   if (!citizenship)
     return res
@@ -65,6 +62,7 @@ router.get("/:cid", async (req, res) => {
 // citizens POST request for to create a citizen
 router.post("/", uploadOptions.single("flag"), async (req, res) => {
   const file = req.file;
+
   if (!file)
     return res
       .status(500)
