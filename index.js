@@ -27,6 +27,7 @@ app.use(bodyParser.json());
 
 app.use('/public/uploads', express.static(__dirname + '/public/uploads'));
 app.use('/public/avatars', express.static(__dirname + '/public/avatars'));
+app.use('/public/courses', express.static(__dirname + '/public/courses'));
 app.use('/public/lessons', express.static(__dirname + '/public/lessons'));
 app.use('/public/subjects', express.static(__dirname + '/public/subjects'));
 

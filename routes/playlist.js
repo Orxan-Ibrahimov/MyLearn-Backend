@@ -63,7 +63,7 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
   if (!file)
     return res
       .status(500)
-      .send({ success: false, message: "image was not sended!" });
+      .send({ success: false, message: "cover was not sended!" });
 
   const basePath = `${req.protocol}://${req.get("host")}/${playlistPath}/`;
   let playlist = new Playlist({
@@ -71,6 +71,7 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
     cover: `${basePath}${file.filename}`,
     description: req.body.description,
     price: req.body.price,
+    createdDate: Date.now(),
     creator: req.body.creator,
   });
 
