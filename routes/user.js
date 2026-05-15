@@ -96,7 +96,7 @@ router.post("/login", async (req, res) => {
     { role: user.role, userId: user.id },
     process.env.MY_SECRET,
     {
-      expiresIn: "1d",
+      expiresIn: "1h",
     }
   );
   res.status(200).send({ success: true, token: token });

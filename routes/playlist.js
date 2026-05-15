@@ -31,7 +31,7 @@ const uploadOptions = multer({ storage: storage });
 
 // Playlist GET Request To Get The Playlists List
 router.get("/", async (req, res) => {
-  const playlists = await Playlist.find();
+  const playlists = await Playlist.find().populate("creator");
   if (!playlists)
     return res
       .status(404)
@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
 
 // Playlist GET Request To Get The Playlist For Id
 router.get("/:pid", async (req, res) => {
-  const playlist = await Playlist.findById(req.params.pid);
+  const playlist = await Playlist.findById(req.params.pid).populate("creator");
   if (!playlist)
     return res
       .status(404)

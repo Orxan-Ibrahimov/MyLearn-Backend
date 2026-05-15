@@ -26,6 +26,13 @@ const playlistSchema = mongoose.Schema({
     ref: "User",
     required: true,
   },
+  lessons: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Lesson",
+      default: [],
+    },
+  ],
   orders: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -41,11 +48,11 @@ const playlistSchema = mongoose.Schema({
 });
 
 playlistSchema.virtual("id").get(function (params) {
-   return this._id.toHexString();
+  return this._id.toHexString();
 });
 
 playlistSchema.set("toJSON", {
-   virtuals: true,
+  virtuals: true,
 });
 
 const Playlist = mongoose.model("Playlist", playlistSchema);
