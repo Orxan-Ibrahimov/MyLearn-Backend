@@ -5,6 +5,7 @@ const fs = require("fs");
 const { Playlist } = require("../models/playlist");
 const { User } = require("../models/user");
 const path = require("path");
+const authMiddleware = require("../middleware/auth");
 const playlistPath = "public/courses";
 
 const FILE_TYPES = {
@@ -38,6 +39,18 @@ router.get("/", async (req, res) => {
       .json({ success: false, message: "Not found any playlist!" });
 
   res.status(200).send(playlists);
+});
+
+// Playlist GET Request To Get The Playlist For User
+router.get("/for-user", authMiddleware, async (req, res) => {
+  const my_playlists = await Playlist.find({ creator: req.user.userId }).populate("creator");
+
+  if (!my_playlists)
+    return res
+      .status(404)
+      .json({ success: false, message: "Not found your any playlist!" });
+
+  res.status(200).send(my_playlists);
 });
 
 // Playlist GET Request To Get The Playlist For Id
