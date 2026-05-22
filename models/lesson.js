@@ -17,6 +17,11 @@ const LessonSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  playlist: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Playlist",
+    required: true,
+  },
   createdDate: {
     type: Date,
     default: Date.now(),

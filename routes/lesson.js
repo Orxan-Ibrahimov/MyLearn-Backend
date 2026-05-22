@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
 const { Lesson } = require("../models/lesson");
+const { Playlist } = require("../models/playlist");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -52,6 +53,12 @@ router.get("/:lid", async (req, res) => {
 
 // Lesson POST Request To Added A New Lesson
 router.post("/", uploadOptions.single("cover"), async (req, res) => {
+  const playlist = await Playlist.findById(req.body.playlist);
+  if (!playlist)
+    return res
+      .status(404)
+      .json({ success: false, message: "The playlist was not at Database" });
+
   if (!req.file)
     return res
       .status(500)
@@ -64,6 +71,7 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
     name: req.body.name,
     description: req.body.description,
     isFree: req.body.isFree,
+    playlist: req.body.playlist,
     cover: `${basePath}${cover}`,
     createdDate: req.body.createdDate,
   });
@@ -74,6 +82,12 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "The lesson can not be created!" });
+
+  // Added a lesson to the playlist's lessons 
+  if (playlist) {
+    if (!playlist.lessons.includes(lesson.id)) playlist.lessons.push(lesson.id);
+    playlist = await playlist.save();
+  }
 
   res.status(201).send(lesson);
 });
@@ -98,9 +112,8 @@ router.put("/:lid", uploadOptions.single("cover"), async (req, res) => {
       if (err) return res.status(500).json({ success: false, message: err });
     });
 
-    newCoverImage = `${req.protocol}://${req.get("host")}/public/lessons/${
-      file.filename
-    }`;
+    newCoverImage = `${req.protocol}://${req.get("host")}/public/lessons/${file.filename
+      }`;
   }
 
   // Update Lesson
