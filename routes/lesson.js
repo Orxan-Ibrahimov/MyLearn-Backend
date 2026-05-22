@@ -39,6 +39,17 @@ router.get("/", async (req, res) => {
   res.status(200).send(lessons);
 });
 
+router.get("/for-playlist/:pid", async (req, res) => {
+  const lessons = await Lesson.find({ playlist: req.params.pid }).populate("comments");
+
+  if (!lessons)
+    return res
+      .status(404)
+      .json({ success: false, message: "not found any lesson for this playlist!" });
+
+  res.status(200).send(lessons);
+});
+
 // Lesson GET Request To Get the lesson
 router.get("/:lid", async (req, res) => {
   const lesson = await Lesson.findById(req.params.lid).populate("comments");
