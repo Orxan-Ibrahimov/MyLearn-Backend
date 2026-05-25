@@ -13,7 +13,7 @@ const FILE_TYPES = {
   "image/jpg": "jpg",
   "image/jpeg": "jpeg",
 };
-
+ 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     let typeError = new Error({ message: "image type was not valid!" });
@@ -54,8 +54,8 @@ router.get("/for-user", authMiddleware, async (req, res) => {
 });
 
 // Playlist GET Request To Get The Playlist For Id
-router.get("/:pid", async (req, res) => {
-  const playlist = await Playlist.findById(req.params.pid).populate("creator");
+router.get("/:slug", async (req, res) => {
+  const playlist = await Playlist.findOne({slug: req.params.slug}).populate("creator");
   if (!playlist)
     return res
       .status(404)
@@ -66,42 +66,79 @@ router.get("/:pid", async (req, res) => {
 
 // Playlist POST Request To Added A New Playlist
 router.post("/", uploadOptions.single("cover"), async (req, res) => {
-  let creator = await User.findById(req.body.creator);
-  if (!creator)
-    return res
-      .status(404)
-      .json({ success: false, message: "The creator was not at Database" });
+  try {
+    let creator = await User.findById(req.body.creator);
+    if (!creator)
+      return res
+        .status(404)
+        .json({ success: false, message: "The creator was not at Database" });
 
-  const file = req.file;
-  if (!file)
-    return res
-      .status(500)
-      .send({ success: false, message: "cover was not sended!" });
+    // Check duplicate title
+    const existingPlaylist = await Playlist.findOne({
+      title: req.body.title,
+    });
 
-  const basePath = `${req.protocol}://${req.get("host")}/${playlistPath}/`;
-  let playlist = new Playlist({
-    title: req.body.title,
-    cover: `${basePath}${file.filename}`,
-    description: req.body.description,
-    price: req.body.price,
-    createdDate: Date.now(),
-    creator: req.body.creator,
-  });
+    if (existingPlaylist) {
+      return res.status(400).json({
+        success: false,
+        message: "Playlist title already exists",
+      });
+    }
 
-  playlist = await playlist.save();
 
-  if (!playlist)
-    return res
-      .status(400)
-      .json({ success: false, message: "The playlist can not be created!" });
+    const file = req.file;
+    if (!file)
+      return res
+        .status(500)
+        .send({ success: false, message: "cover was not sended!" });
 
-  // Added a course to the user's courses that he teach
-  let user = await User.findById(playlist.creator);
-  if (user) {
-    if (!user.myCourses.includes(playlist)) user.myCourses.push(playlist);
-    user = await user.save();
+    const basePath = `${req.protocol}://${req.get("host")}/${playlistPath}/`;
+    let playlist = new Playlist({
+      title: req.body.title,
+      slug: req.body.title.toLowerCase().trim().replace(' ', '-'),
+      cover: `${basePath}${file.filename}`,
+      description: req.body.description,
+      price: req.body.price,
+      createdDate: Date.now(),
+      creator: req.body.creator,
+    });
+
+    const created_playlist = await playlist.save();
+
+    if (!created_playlist)
+      return res
+        .status(400)
+        .json({ success: false, message: "The playlist can not be created!" });
+
+    // Added a course to the user's courses that he teach
+    let user = await User.findById(playlist.creator);
+    if (user) {
+      if (!user.myCourses.includes(created_playlist)) user.myCourses.push(created_playlist);
+      user = await user.save();
+    }
+    res.status(201).send(playlist);
+  } catch (err) {
+    // Duplicate title
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Playlist title already exists",
+      });
+    }
+
+    // Mongoose validation errors
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: err.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
-  res.status(201).send(playlist);
 });
 
 router.put("/:pid", uploadOptions.single("cover"), async (req, res) => {

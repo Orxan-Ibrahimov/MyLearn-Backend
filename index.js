@@ -22,7 +22,10 @@ const enumsRouter = require('./routes/enums');
 const subjectRouter = require('./routes/subject');
 
 app.use(morgan('tiny'))
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173"
+}));
 app.use(bodyParser.json());
 
 app.use('/public/uploads', express.static(__dirname + '/public/uploads'));

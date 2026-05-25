@@ -39,20 +39,37 @@ router.get("/", async (req, res) => {
   res.status(200).send(lessons);
 });
 
-router.get("/for-playlist/:pid", async (req, res) => {
-  const lessons = await Lesson.find({ playlist: req.params.pid }).populate("comments");
+router.get("/for-playlist/:slug", async (req, res) => {
+  try {
+    const playlist = await Playlist.findOne({
+      slug: req.params.slug,
+    });
 
-  if (!lessons)
-    return res
-      .status(404)
-      .json({ success: false, message: "not found any lesson for this playlist!" });
+    if (!playlist) {
+      return res.status(404).json({
+        success: false,
+        message: "Playlist not found!",
+      });
+    }
+    const lessons = await Lesson.find({ playlist: playlist._id }).populate("playlist");
 
-  res.status(200).send(lessons);
+    if (!lessons)
+      return res
+        .status(404)
+        .json({ success: false, message: "not found any lesson for this playlist!" });
+
+    res.status(200).send(lessons);
+
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+
 });
 
 // Lesson GET Request To Get the lesson
-router.get("/:lid", async (req, res) => {
-  const lesson = await Lesson.findById(req.params.lid).populate("comments");
+router.get("/:slug", async (req, res) => {
+  const lesson = await Lesson.findOne({slug: req.params.slug}).populate("comments");
+  // const lesson = await Lesson.findById(req.params.slug).populate("comments");
 
   if (!lesson)
     return res
@@ -64,7 +81,8 @@ router.get("/:lid", async (req, res) => {
 
 // Lesson POST Request To Added A New Lesson
 router.post("/", uploadOptions.single("cover"), async (req, res) => {
-  const playlist = await Playlist.findById(req.body.playlist);
+  let playlist = await Playlist.findOne({ slug: req.body.playlist_slug });
+
   if (!playlist)
     return res
       .status(404)
@@ -80,9 +98,10 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
 
   let lesson = new Lesson({
     name: req.body.name,
+    slug: req.body.name.toLowerCase().trim().replace(' ', '-'),
     description: req.body.description,
     isFree: req.body.isFree,
-    playlist: req.body.playlist,
+    playlist: playlist._id,
     cover: `${basePath}${cover}`,
     createdDate: req.body.createdDate,
   });

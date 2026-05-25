@@ -3,7 +3,15 @@ const mongoose = require("mongoose");
 const playlistSchema = mongoose.Schema({
   title: {
     type: String,
+    unique: true,
     required: true,
+    index: true,
+  },
+  slug: {
+    type: String,
+    unique: true,
+    required: true,
+    index: true,
   },
   cover: {
     type: String,

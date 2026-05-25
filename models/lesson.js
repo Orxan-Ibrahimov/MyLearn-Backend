@@ -3,40 +3,46 @@ const mongoose = require("mongoose");
 const LessonSchema = mongoose.Schema({
   name: {
     type: String,
+    required: true
+  },
+   slug: {
+    type: String,
+    unique: true,
     required: true,
+    index: true,
   },
   description: {
     type: String,
-    required: true,
+    required: true
   },
   isFree: {
     type: Boolean,
-    default: false,
+    default: false
   },
   cover: {
     type: String,
-    required: true,
+    required: true
   },
   playlist: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Playlist",
-    required: true,
+    required: true
   },
   createdDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now()
   },
   comments: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
+      ref: "Comment"
     },
   ],
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Likes",
-    },
+      ref: "Likes"
+    }
   ],
 });
 
