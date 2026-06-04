@@ -48,6 +48,17 @@ router.get("/", async (req, res) => {
   res.status(200).send(userList);
 });
 
+// GET Request For Teachers
+router.get("/teachers", async (req, res) => {
+  const teacherList = await User.find({ role: Roles.hero }).populate(["citizenship", "comments", "myCourses"]).select("-password");
+  if (!teacherList)
+    return res
+      .status(404)
+      .json({ success: false, message: "not found any teacher!" });
+
+  res.status(200).send(teacherList);
+});
+
 router.get('/me', authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.userId);
 
