@@ -17,6 +17,12 @@ const UserSchema = mongoose.Schema({
     required: true,
     index: true,
   },
+  slug: {
+    type: String,
+    unique: true,
+    required: true,
+    index: true,
+  },
   birthday: {
     type: Date,
     required: true,

@@ -95,7 +95,7 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
     const basePath = `${req.protocol}://${req.get("host")}/${playlistPath}/`;
     let playlist = new Playlist({
       title: req.body.title,
-      slug: req.body.title.toLowerCase().trim().replace(' ', '-'),
+      slug: req.body.title.toLowerCase().trim().replaceAll(' ', '-'),
       cover: `${basePath}${file.filename}`,
       description: req.body.description,
       price: req.body.price,

@@ -13,10 +13,13 @@ const FILE_TYPES = {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    let typeError = new Error({ message: "image type was not valid!" });
     const isValid = FILE_TYPES[file.mimetype];
-    if (isValid) typeError = null;
-    cb(typeError, "public/lessons");
+
+    if (!isValid) {
+      return cb(new Error("Image type is not valid"));
+    }
+
+    cb(null, "public/lessons");
   },
   filename: function (req, file, cb) {
     const filename = file.fieldname.replace(" ", "-");
@@ -68,7 +71,7 @@ router.get("/for-playlist/:slug", async (req, res) => {
 
 // Lesson GET Request To Get the lesson
 router.get("/:slug", async (req, res) => {
-  const lesson = await Lesson.findOne({slug: req.params.slug}).populate("comments");
+  const lesson = await Lesson.findOne({ slug: req.params.slug }).populate("comments");
   // const lesson = await Lesson.findById(req.params.slug).populate("comments");
 
   if (!lesson)
@@ -81,7 +84,7 @@ router.get("/:slug", async (req, res) => {
 
 // Lesson POST Request To Added A New Lesson
 router.post("/", uploadOptions.single("cover"), async (req, res) => {
-  let playlist = await Playlist.findOne({ slug: req.body.playlist_slug });
+  let playlist = await Playlist.findOne({ slug: req.body.playlist });
 
   if (!playlist)
     return res
@@ -98,7 +101,7 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
 
   let lesson = new Lesson({
     name: req.body.name,
-    slug: req.body.name.toLowerCase().trim().replace(' ', '-'),
+    slug: req.body.name.toLowerCase().trim().replaceAll(' ', '_'),
     description: req.body.description,
     isFree: req.body.isFree,
     playlist: playlist._id,

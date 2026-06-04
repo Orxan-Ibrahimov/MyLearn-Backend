@@ -11,6 +11,7 @@ const imageRoute = "public/avatars";
 const jwt = require("jsonwebtoken");
 const { Roles } = require("../helpers/enums/role");
 const authMiddleware = require("../middleware/auth");
+const { populate } = require("dotenv");
 
 const FILE_TYPES = {
   "image/png": "png",
@@ -72,11 +73,11 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 
-// GET Request For Find Any Users
+// GET Request For Find Any User By Slug
 router.get("/:userId", async (req, res) => {
-  const user = await User.findById(req.params.userId)
+  const user = await User.findOne({ slug: req.params.userId })
     .select("-password")
-    .populate(["citizenship", "comments"]);
+    .populate(["citizenship", "comments", {path: "myCourses", populate: "creator"}]);
   if (!user)
     return res.status(404).json({ success: false, message: "User not found!" });
 
@@ -122,6 +123,7 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
     name: req.body.name,
     surname: req.body.surname,
     nickname: req.body.nickname,
+    slug: req.body.nickname.toLowerCase().trim().replaceAll(' ', '_'),
     birthday: new Date(req.body.birthday),
     phone: req.body.phone,
     email: req.body.email,
@@ -132,11 +134,11 @@ router.post("/register", uploadOptions.single("profile"), async (req, res) => {
     profile: req.body.profile,
     registrationDate: Date.now(),
     role: Roles.ciwil,
-   
+
   });
 
   user.roles.push(Roles.ciwil);
-  
+
   user = user
     .save()
     .then(async (createdUser) => {
