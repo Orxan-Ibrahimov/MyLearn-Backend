@@ -33,11 +33,24 @@ router.get("/:cid", async (req, res) => {
 
 // comments POST request for to create a new comment
 router.post("/", async (req, res) => {
+  let user = await User.findOne({ nickname: req.body.user });
+  if (!user)
+    return res
+      .status(400)
+      .json({ success: false, message: "comment's user not found!" });
+
+  let lesson = await Lesson.findOne({ slug: req.body.lesson });
+
+  if (!lesson)
+    return res
+      .status(400)
+      .json({ success: false, message: "comment's lesson not found!" });
+
   let comment = new Comment({
     text: req.body.text,
-    lesson: req.body.lesson,
-    user: req.body.user,
-    actionDate: req.body.actionDate,
+    lesson: lesson._id,
+    user: user._id,
+    actionDate: Date.now(),
   });
 
   comment = await comment.save();
@@ -48,23 +61,10 @@ router.post("/", async (req, res) => {
       .json({ success: false, message: "comment can not be created!!" });
 
   // Added Comment to the lesson's comments list
-  let lesson = await Lesson.findById(req.body.lesson);
-
-  if (!lesson)
-    return res
-      .status(400)
-      .json({ success: false, message: "comment's lesson not found!" });
-
   lesson.comments.push(comment);
   lesson = await lesson.save();
 
   // Added Comment to the user's comments list
-  let user = await User.findById(req.body.user);
-
-  if (!user)
-    return res
-      .status(400)
-      .json({ success: false, message: "comment's user not found!" });
   user.comments.push(comment);
   user = await user.save();
 
