@@ -5,7 +5,7 @@ const LessonSchema = mongoose.Schema({
     type: String,
     required: true
   },
-   slug: {
+  slug: {
     type: String,
     unique: true,
     required: true,
@@ -20,6 +20,10 @@ const LessonSchema = mongoose.Schema({
     default: false
   },
   cover: {
+    type: String,
+    required: true
+  },
+  video: {
     type: String,
     required: true
   },

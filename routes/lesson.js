@@ -5,10 +5,19 @@ const fs = require("fs");
 const { Lesson } = require("../models/lesson");
 const { Playlist } = require("../models/playlist");
 
+// const FILE_TYPES = {
+//   "image/png": "png",
+//   "image/jpg": "jpg",
+//   "image/jpeg": "jpeg",
+// };
+
 const FILE_TYPES = {
   "image/png": "png",
   "image/jpg": "jpg",
   "image/jpeg": "jpeg",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/quicktime": "mov",
 };
 
 const storage = multer.diskStorage({
@@ -16,19 +25,54 @@ const storage = multer.diskStorage({
     const isValid = FILE_TYPES[file.mimetype];
 
     if (!isValid) {
-      return cb(new Error("Image type is not valid"));
+      return cb(new Error("File type is not valid"));
     }
 
-    cb(null, "public/lessons");
+    if (file.fieldname === "cover") {
+      cb(null, "public/lessons/covers");
+    } else if (file.fieldname === "video") {
+      cb(null, "public/lessons/videos");
+    } else {
+      cb(new Error("Unknown field name"));
+    }
   },
+
   filename: function (req, file, cb) {
-    const filename = file.fieldname.replace(" ", "-");
     const extension = FILE_TYPES[file.mimetype];
-    cb(null, `myimagefor${filename}${Date.now()}.${extension}`);
+
+    const fileName = file.originalname
+      .split(".")
+      .slice(0, -1)
+      .join(".")
+      .replace(/\s+/g, "-")
+      .toLowerCase();
+
+    cb(null, `myimagefor-${fileName}${Date.now()}.${extension}`);
   },
 });
 
-const uploadOptions = multer({ storage: storage });
+const uploadOptions = multer({
+  storage,
+});
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     const isValid = FILE_TYPES[file.mimetype];
+
+//     if (!isValid) {
+//       return cb(new Error("Image type is not valid"));
+//     }
+
+//     cb(null, "public/lessons");
+//   },
+//   filename: function (req, file, cb) {
+//     const filename = file.fieldname.replace(" ", "-");
+//     const extension = FILE_TYPES[file.mimetype];
+//     cb(null, `myimagefor${filename}${Date.now()}.${extension}`);
+//   },
+// });
+
+// const uploadOptions = multer({ storage: storage });
 
 // Lesson GET Request To Get lessons list
 router.get("/", async (req, res) => {
@@ -71,8 +115,8 @@ router.get("/for-playlist/:slug", async (req, res) => {
 
 // Lesson GET Request To Get the lesson
 router.get("/:slug", async (req, res) => {
-  const lesson = await Lesson.findOne({ slug: req.params.slug }).populate("comments");
-  // const lesson = await Lesson.findById(req.params.slug).populate("comments");
+  const lesson = await Lesson.findOne({ slug: req.params.slug })
+  .populate(["comments", {path: "playlist", populate: "creator"}]);
 
   if (!lesson)
     return res
@@ -83,7 +127,10 @@ router.get("/:slug", async (req, res) => {
 });
 
 // Lesson POST Request To Added A New Lesson
-router.post("/", uploadOptions.single("cover"), async (req, res) => {
+router.post("/", uploadOptions.fields([{ name: "cover", maxCount: 1 }, { name: "video", maxCount: 1 },]), async (req, res) => {
+  const coverFile = req.files?.cover?.[0];
+  const videoFile = req.files?.video?.[0];
+
   let playlist = await Playlist.findOne({ slug: req.body.playlist });
 
   if (!playlist)
@@ -91,12 +138,13 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
       .status(404)
       .json({ success: false, message: "The playlist was not at Database" });
 
-  if (!req.file)
+  if (!coverFile || !videoFile)
     return res
       .status(500)
-      .json({ success: false, message: "cover image was not sended!" });
+      .json({ success: false, message: "cover or video image was not sended!" });
 
-  let cover = req.file.filename;
+  let cover = coverFile.filename;
+  let video = videoFile.filename;
   const basePath = `${req.protocol}://${req.get("host")}/public/lessons/`;
 
   let lesson = new Lesson({
@@ -105,7 +153,8 @@ router.post("/", uploadOptions.single("cover"), async (req, res) => {
     description: req.body.description,
     isFree: req.body.isFree,
     playlist: playlist._id,
-    cover: `${basePath}${cover}`,
+    cover: `${basePath}covers/${cover}`,
+    video: `${basePath}videos/${video}`,
     createdDate: req.body.createdDate,
   });
 
