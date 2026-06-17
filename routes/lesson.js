@@ -116,7 +116,11 @@ router.get("/for-playlist/:slug", async (req, res) => {
 // Lesson GET Request To Get the lesson
 router.get("/:slug", async (req, res) => {
   const lesson = await Lesson.findOne({ slug: req.params.slug })
-    .populate([{ path: "comments", populate: [{ path: "user" }, { path: "replies", populate: "user" }] }, { path: "playlist", populate: "creator" }]);
+    .populate([
+      { path: "comments", populate: [{ path: "user" }, { path: "replies", populate: "user" }] },
+      { path: "playlist", populate: "creator" },
+      { path: "likes", populate: "user" }
+    ]);
 
   if (!lesson)
     return res

@@ -30,10 +30,24 @@ router.get("/:lid", async (req, res) => {
 
 // likes POST request for to create a new like
 router.post("/", async (req, res) => {
+  let user = await User.findOne({ nickname: req.body.user });
+  if (!user)
+    return res
+      .status(400)
+      .json({ success: false, message: "comment's user not found!" });
+
+  let lesson = await Lesson.findOne({ slug: req.body.lesson });
+
+  if (!lesson)
+    return res
+      .status(400)
+      .json({ success: false, message: "comment's lesson not found!" });
+
+
   let like = new Like({
-    lesson: req.body.lesson,
-    user: req.body.user,
-    actionDate: req.body.actionDate,
+    lesson: lesson.id,
+    user: user.id,
+    actionDate: Date.now(),
   });
 
   like = await like.save();
@@ -44,19 +58,12 @@ router.post("/", async (req, res) => {
       .json({ success: false, message: "like can not be added!" });
 
   // Added like to the user's likes list
-  let user = await User.findById(like.user);
-
-  if (!user.likes.includes(like.id)) {
-    user.likes.push(like.id);
-    user = await user.save();
-  }
+  user.likes.push(like.id);
+  user = await user.save();
 
   // Added like to the lesson's likes list
-  let lesson = await Lesson.findById(like.lesson);
-  if (!lesson.likes.includes(like.id)) {
-    lesson.likes.push(like.id);
-    lesson = await lesson.save();
-  }
+  lesson.likes.push(like.id);
+  lesson = await lesson.save();
 
   res.status(201).send(like);
 });
