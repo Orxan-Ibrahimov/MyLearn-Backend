@@ -50,6 +50,7 @@ router.post("/", async (req, res) => {
     text: req.body.text,
     lesson: lesson._id,
     user: user._id,
+    parent: req.body.parent,
     actionDate: Date.now(),
   });
 
@@ -59,6 +60,16 @@ router.post("/", async (req, res) => {
     return res
       .status(400)
       .json({ success: false, message: "comment can not be created!!" });
+
+// Added Comment to the parent's comments list
+  if (req.body.parent) {
+    const parentComment = await Comment.findById(req.body.parent);
+    
+    if (parentComment) {
+      parentComment.replies.push(comment);
+      await parentComment.save();
+    }
+  }
 
   // Added Comment to the lesson's comments list
   lesson.comments.push(comment);

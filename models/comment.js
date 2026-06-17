@@ -15,6 +15,14 @@ const commentSchema = mongoose.Schema({
         ref: "User",
         required: true
     },
+    parent: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment"
+    },
+    replies: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment"
+    }],
     actionDate: {
         type: Date,
         default: Date.now()
@@ -22,11 +30,11 @@ const commentSchema = mongoose.Schema({
 });
 
 commentSchema.virtual("id").get(function (params) {
-  return this._id.toHexString();
+    return this._id.toHexString();
 });
 
 commentSchema.set("toJSON", {
-  virtuals: true,
+    virtuals: true,
 });
 
 const Comment = mongoose.model('Comment', commentSchema);
