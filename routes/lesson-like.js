@@ -29,19 +29,19 @@ router.get("/:lid", async (req, res) => {
 });
 
 // likes POST request for to create a new like
-router.post("/", async (req, res) => {
-  let user = await User.findOne({ nickname: req.body.user });
+router.post("/:lid", async (req, res) => {
+  let user = await User.findById(req.body.user);
   if (!user)
     return res
       .status(400)
-      .json({ success: false, message: "comment's user not found!" });
+      .json({ success: false, message: "User not found!" });
 
-  let lesson = await Lesson.findOne({ slug: req.body.lesson });
-
+  const lesson_slug = req.params.lid;
+  let lesson = await Lesson.findOne({ slug: lesson_slug });
   if (!lesson)
     return res
       .status(400)
-      .json({ success: false, message: "comment's lesson not found!" });
+      .json({ success: false, message: "Lesson not found!" });
 
 
   let like = new Like({
@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
   if (!like)
     return res
       .status(400)
-      .json({ success: false, message: "like can not be added!" });
+      .json({ success: false, message: "Like can not be added!" });
 
   // Added like to the user's likes list
   user.likes.push(like.id);
@@ -69,39 +69,50 @@ router.post("/", async (req, res) => {
 });
 
 router.delete("/:lid", async (req, res) => {
-  const like = Like.findByIdAndDelete(req.params.lid)
-    .then(async (removedLike) => {
-      if (!removedLike)
-        return res
-          .status(400)
-          .json({ success: false, message: "The like can not be deleted!" });
+  const lesson_slug = req.params.lid;
+  let lesson = await Lesson.findOne({ slug: lesson_slug });
 
-      // Delete Removed Like From User's Likes List
-      let user = await User.findById(removedLike.user);
-      if (user) {
-        commnetIndexAtUserLikes = user?.likes.indexOf(removedLike.id);
-        if (commnetIndexAtUserLikes > -1) {
-          user.likes.splice(commnetIndexAtUserLikes, 1);
-          user = await user.save();
-        }
-      }
+  if (!lesson)
+    return res
+      .status(400)
+      .json({ success: false, message: "Lesson not found!" });
 
-      // Delete Removed Like From Lesson's Likes List
-      let lesson = await Lesson.findById(removedLike.lesson);
-      if (lesson) {
-        commnetIndexAtLessonLikes = lesson?.likes.indexOf(removedLike.id);
-        if (commnetIndexAtLessonLikes > -1) {
-          lesson.likes.splice(commnetIndexAtLessonLikes, 1);
-          lesson = await lesson.save();
-        }
-      }
+  const like = await Like.findOne({ user: req.body.user, lesson: lesson.id });
 
-      res.status(200).send(removedLike);
-    })
-    .catch((err) => {
-      if (err)
-        return res.status(500).json({ success: false, message: err.message });
-    });
+  if (!like)
+    return res
+      .status(400)
+      .json({ success: false, message: "Like not found!" });
+
+  const likeId = like._id;
+
+  // Delete like
+  await like.deleteOne();
+
+  // Remove from lesson
+  const lessonLikeIndex = lesson.likes.indexOf(likeId);
+
+  if (lessonLikeIndex !== -1) {
+    lesson.likes.splice(lessonLikeIndex, 1);
+    await lesson.save();
+  }
+
+  // Remove from user
+  let user = await User.findById(req.body.user);
+
+  if (user) {
+    const userLikeIndex = user.likes.indexOf(likeId);
+
+    if (userLikeIndex !== -1) {
+      user.likes.splice(userLikeIndex, 1);
+      await user.save();
+    }
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Like removed successfully",
+  });
 });
 
 module.exports = router;
