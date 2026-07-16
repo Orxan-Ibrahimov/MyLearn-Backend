@@ -23,6 +23,12 @@ const commentSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment"
     }],
+    comment_likes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "CommentLike",
+        },
+    ],
     actionDate: {
         type: Date,
         default: Date.now()

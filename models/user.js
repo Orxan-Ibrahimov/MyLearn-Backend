@@ -97,6 +97,12 @@ const UserSchema = mongoose.Schema({
       ref: "Like",
     },
   ],
+  comment_likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CommentLike",
+    },
+  ],
   myCourses: [
     {
       type: mongoose.Schema.Types.ObjectId,
