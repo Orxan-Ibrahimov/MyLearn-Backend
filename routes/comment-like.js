@@ -70,7 +70,6 @@ router.post("/", async (req, res) => {
 });
 
 router.delete("/", async (req, res) => {
-
   const comment_like = await CommentLike.findOne({ user: req.body.user, comment: req.body.comment });
 
   if (!comment_like)
