@@ -53,8 +53,8 @@ app.use(`${API_URL}/enums`, enumsRouter);
 
 mongoose
   .connect(process.env.DATABASE_CONNECTION, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
     dbName: "MLDB",
   })
   .then(() => {

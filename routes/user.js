@@ -61,7 +61,7 @@ router.get("/teachers", async (req, res) => {
 });
 
 router.get('/me', authMiddleware, async (req, res) => {
-  const user = await User.findById(req.user.userId);
+  const user = await User.findById(req.user.userId).populate(["myCourses"]);
 
   if (!user) {
     return res.status(404).json({

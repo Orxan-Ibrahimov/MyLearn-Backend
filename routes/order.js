@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   const ordersList = await Order.find().populate(["subscriber", "course"]);
 
-  if(!ordersList) return res.status(400).json({success: false, message: "Not found any order!"});
+  if (!ordersList) return res.status(400).json({ success: false, message: "Not found any order!" });
 
   res.status(200).send(ordersList);
 });
@@ -17,17 +17,23 @@ router.get("/", async (req, res) => {
 router.get("/:oid", async (req, res) => {
   const order = await Order.findById(req.params.oid).populate(["subscriber", "course"]);
 
-  if(!order) return res.status(400).json({success: false, message: "The order not found!"});
+  if (!order) return res.status(400).json({ success: false, message: "The order not found!" });
 
   res.status(200).send(order);
 });
 
 // Orders POST Request To Add The Order To The Orders List
 router.post("/", async (req, res) => {
+  const pl = await Playlist.findOne({ slug: req.body.p_slug });
+
   let order = new Order({
-    subscriber: req.body.subscriber,
-    course: req.body.course,
+    subscriber: req.body.user,
+    course: pl.id,
+    cardNumber: req.body.card_number
   });
+
+  console.log('order: ', order);
+
 
   order = await order.save();
 
@@ -36,27 +42,32 @@ router.post("/", async (req, res) => {
       .status(400)
       .json({ success: false, message: "The education can not be created!" });
 
-  // Add education to the subscriber's educations list
+  // // Add education to the subscriber's educations list
   let subscriber = await User.findById(order.subscriber);
   if (!subscriber)
     return res
       .status(400)
       .json({ success: false, message: "This user was not Database!" });
 
-  if (!subscriber.orders.includes(order))
+  if (!subscriber.orders.includes(order)) {
     subscriber.orders.push(order);
-  subscriber = await subscriber.save();
+    subscriber.myCourses.push(pl.id);
+    subscriber = await subscriber.save();
+  }
 
-  // Add education to the course's educations list
+
+  // // Add education to the course's educations list
   let course = await Playlist.findById(order.course);
   if (!course)
     return res
       .status(400)
       .json({ success: false, message: "This course was not Database!" });
 
-  if (!course.orders.includes(order))
-  course.orders.push(order);
-  course = await course.save();
+  if (!course.orders.includes(order)) {
+    course.orders.push(order);
+    course = await course.save();
+  }
+
   res.status(201).send(order);
 });
 

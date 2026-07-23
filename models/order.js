@@ -1,28 +1,33 @@
 const mongoose = require('mongoose');
+const { required } = require('nodemon/lib/config');
 
 const orderSchema = mongoose.Schema({
-    subscriber:{
+    subscriber: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
-    course:{
+    course: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Playlist",
         required: true
     },
-    actionDate:{
+    cardNumber: {
+        type: String,
+        required: true
+    },
+    actionDate: {
         type: Date,
         default: Date.now()
     }
 });
 
 orderSchema.virtual("id").get(function (params) {
-  return this._id.toHexString();
+    return this._id.toHexString();
 });
 
 orderSchema.set("toJSON", {
-  virtuals: true,
+    virtuals: true,
 });
 
 const Order = mongoose.model('Order', orderSchema);
